@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/router';
 
-import { logo, facebook, instagram, linkedin, twitter, cryptochicks, ETHvzla, mxweb3, send, shield, star, cryptoconexion } from '@/app/assets';
+import { logo, facebook, instagram, linkedin, twitter } from '@/assets';
 import { useEffect } from 'react';
 
 const footerLinks = [

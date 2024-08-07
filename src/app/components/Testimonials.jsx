@@ -1,4 +1,4 @@
-import { people01, facebook, instagram, linkedin, twitter, cryptochicks, ETHvzla, mxweb3, send, shield, star, cryptoconexion } from '@/app/assets';
+import { people01, facebook, instagram, linkedin, twitter, cryptochicks, ETHvzla, mxweb3, send, shield, star, cryptoconexion } from '@/assets';
 
 import FeedbackCard from "./FeedbackCard";
 

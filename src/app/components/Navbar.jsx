@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { close, logo, menu } from '@/app/assets';
+import { close, logo, menu } from '@/assets';
 
 const navLinks = [
   {

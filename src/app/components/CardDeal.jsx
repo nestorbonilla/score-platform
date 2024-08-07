@@ -1,4 +1,4 @@
-import { card } from "../assets";
+import { card } from "../../assets";
 import Button from "./Button";
 
 const CardDeal = () => (

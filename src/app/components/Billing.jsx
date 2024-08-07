@@ -1,4 +1,4 @@
-import { bill } from '@/app/assets';
+import { bill } from '@/assets';
 
 const Billing = () => (
   <section id="product" className={'flex md:flex-row flex-col-reverse sm:py-16 py-6'}>

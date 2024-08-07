@@ -1,4 +1,4 @@
-import { discount, robot } from '@/app/assets';
+import { discount, robot } from '@/assets';
 import GetStarted from '@/app/components/GetStarted';
 
 const Hero = () => {
