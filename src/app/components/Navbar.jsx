@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { close, logo, menu } from '@/assets';
+import Image from "next/image";
 
 const navLinks = [
   {
@@ -29,7 +30,7 @@ const Navbar = () => {
 
   return (
     <nav className="w-full flex py-6 justify-between items-center navbar">
-      <img src={logo} alt="hoobank" className="w-[150px] h-[100px]" />
+      <Image src={logo} alt="hoobank" width={150} height={100}/>
 
       <ul className="list-none sm:flex hidden justify-end items-center flex-1">
         {navLinks.map((nav, index) => (
@@ -37,7 +38,7 @@ const Navbar = () => {
             key={nav.id}
             className={`font-poppins font-normal cursor-pointer text-[16px] ${active === nav.title ? "text-white" : "text-dimWhite"
               } ${index === navLinks.length - 1 ? "mr-0" : "mr-10"}`}
-            // onClick={() => setActive(nav.title)}
+            onClick={() => setActive(nav.title)}
           >
             <a href={`#${nav.id}`}>{nav.title}</a>
           </li>
@@ -45,11 +46,13 @@ const Navbar = () => {
       </ul>
 
       <div className="sm:hidden flex flex-1 justify-end items-center">
-        <img
+        <Image
           src={toggle ? close : menu}
           alt="menu"
-          className="w-[28px] h-[28px] object-contain"
-          // onClick={() => setToggle(!toggle)}
+          width={28}
+          height={28}
+          className="object-contain"
+          onClick={() => setToggle(!toggle)}
         />
 
         <div
@@ -62,7 +65,7 @@ const Navbar = () => {
                 key={nav.id}
                 className={`font-poppins font-medium cursor-pointer text-[16px] ${active === nav.title ? "text-white" : "text-dimWhite"
                   } ${index === navLinks.length - 1 ? "mb-0" : "mb-4"}`}
-                // onClick={() => setActive(nav.title)}
+                onClick={() => setActive(nav.title)}
               >
                 <a href={`#${nav.id}`}>{nav.title}</a>
               </li>

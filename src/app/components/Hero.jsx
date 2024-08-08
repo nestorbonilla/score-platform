@@ -1,5 +1,6 @@
 import { discount, robot } from '@/assets';
 import GetStarted from '@/app/components/GetStarted';
+import Image from 'next/image';
 
 const Hero = () => {
   return (
@@ -7,7 +8,7 @@ const Hero = () => {
       <div className={`flex-1 flex justify-center items-start flex-col xl:px-0 sm:px-16 px-6`}>
         <a href="https://explorer.gitcoin.co/#/round/42161/0x0c12752d28a68fd3dc791826b3405b8803aa8a52/0x0c12752d28a68fd3dc791826b3405b8803aa8a52-0">
           <div className="flex flex-row items-center py-[6px] px-4 bg-discount-gradient rounded-[10px] mb-2">
-            <img src={discount} alt="discount" className="w-[32px] h-[32px]" />
+            <Image src={discount} alt="discount" width={32} height={32} />
             <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] ml-2`}>
               <span className="text-white">We are</span> a public good.{" "}
               <span className="text-white">Fund us</span> here.
@@ -30,7 +31,7 @@ const Hero = () => {
       </div>
 
       <div className={`flex-1 flex justify-center items-center md:my-0 my-10 relative`}>
-        <img src={robot} alt="billing" className=" w-[100%] h-[95%] relative z-[5]" />
+        <Image src={robot} alt="billing" width={100} height={95} className="relative z-[5]" />
 
         {/* gradient start */}
         <div className="absolute z-[0] w-[40%] h-[35%] top-0 pink__gradient" />

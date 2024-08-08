@@ -1,32 +1,32 @@
-import { people01, facebook, instagram, linkedin, twitter, cryptochicks, ETHvzla, mxweb3, send, shield, star, cryptoconexion } from '@/assets';
+// import { people01, facebook, instagram, linkedin, twitter, cryptochicks, ETHvzla, mxweb3, send, shield, star, cryptoconexion } from '@/assets';
 
 import FeedbackCard from "./FeedbackCard";
 
 const feedback = [
-  {
-    id: "feedback-1",
-    content:
-      "DeFi needs a trusted party that vouches for IRL business, someone on the ground that can enforce responsibility.",
-    name: "Humberto Besso",
-    title: "Entrepreneur",
-    img: people01,
-  },
-  {
-    id: "feedback-2",
-    content:
-      "This the emergence of a web of trust for lending.",
-    name: "Anna Kaic",
-    title: "Entrepreneur",
-    img: people01,
-  },
-  {
-    id: "feedback-3",
-    content:
-      "deCreditScore shows a clear path to build out a crypto-credit score for future and more trusted lending.",
-    name: "Sofiverse.eth",
-    title: "Entrepreneur",
-    img: people01,
-  },
+  // {
+  //   id: "feedback-1",
+  //   content:
+  //     "DeFi needs a trusted party that vouches for IRL business, someone on the ground that can enforce responsibility.",
+  //   name: "Humberto Besso",
+  //   title: "Entrepreneur",
+  //   img: people01,
+  // },
+  // {
+  //   id: "feedback-2",
+  //   content:
+  //     "This the emergence of a web of trust for lending.",
+  //   name: "Anna Kaic",
+  //   title: "Entrepreneur",
+  //   img: people01,
+  // },
+  // {
+  //   id: "feedback-3",
+  //   content:
+  //     "deCreditScore shows a clear path to build out a crypto-credit score for future and more trusted lending.",
+  //   name: "Sofiverse.eth",
+  //   title: "Entrepreneur",
+  //   img: people01,
+  // },
 ];
 
 const Testimonials = () => (

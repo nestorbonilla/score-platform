@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { card } from "../../assets";
 import Button from "./Button";
 
@@ -17,7 +18,7 @@ const CardDeal = () => (
     </div>
 
     <div className={'flex-1 flex justify-center items-center md:ml-10 ml-0 md:mt-0 mt-10 relative'}>
-      <img src={card} alt="billing" className="w-[100%] h-[100%]" />
+      <Image src={card} alt="billing" width={100} height={100} />
     </div>
   </section>
 );
