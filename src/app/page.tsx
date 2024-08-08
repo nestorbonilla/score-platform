@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Billing, Business, CardDeal, Clients, CTA, Footer, Navbar, Stats, Testimonials, Hero } from "@/app/components";
+import { Billing, Business, CardDeal, Clients, CTA, Footer, Navbar, Stats, Testimonials, Hero } from "@/components/home";
 export default function Home() {
   return (
     <div className="bg-primary w-full overflow-hidden">

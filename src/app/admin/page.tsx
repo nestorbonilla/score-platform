@@ -2,8 +2,9 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Label, Pie, PieChart } from "recharts"
+import { Label as ChartLabel, Pie, PieChart } from "recharts"
 import { mascot, crHolonym, crMaps, crGmail } from "@/assets"
 import {
   ChartConfig,
@@ -12,6 +13,16 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import Image from "next/image"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { useState } from "react"
 
 const points = 75; // Example points value
 const chartData = [
@@ -30,6 +41,53 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+  
+
+const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  console.log("Form submitted");
+  // Handle form submission
+};
+
+const googleMapsDialog = (crAddress: string, setCrAddress: React.Dispatch<React.SetStateAction<string>>) => {
+  return (
+    <DialogContent
+      className="sm:max-w-[425px]"
+      onInteractOutside={(e) => {
+        e.preventDefault();
+      }}
+    >
+      <form onSubmit={handleSubmit}>
+        <DialogHeader>
+          <DialogTitle>Google Maps</DialogTitle>
+          <DialogDescription>
+            Search your address
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Address
+            </Label>
+            <Input
+              id="name"
+              required={true}
+              value={crAddress}
+              onChange={(event) => setCrAddress(event.target.value)}
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="submit">
+            Submit
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  );
+};
+
 export default function Dashboard() {
   
   const credentials = [
@@ -39,6 +97,7 @@ export default function Dashboard() {
       points: 20,
       icon: crHolonym,
       description: "Validates identity from official documents, without requiring additional information.",
+      dialog: null,
     },
     {
       id: "google-maps",
@@ -46,6 +105,7 @@ export default function Dashboard() {
       points: 15,
       icon: crMaps,
       description: "Validates if the business has a location, as well as ratings left by users.",
+      dialog: googleMapsDialog,
     },
     {
       id: "gmail",
@@ -53,8 +113,11 @@ export default function Dashboard() {
       points: 15,
       icon: crGmail,
       description: "Email validation for the business or business owner.",
+      dialog: null,
     }
   ];
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [crAddress, setCrAddress] = useState("");
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -80,7 +143,7 @@ export default function Dashboard() {
                       innerRadius={60}
                       strokeWidth={5}
                     >
-                      <Label
+                      <ChartLabel
                         content={({ viewBox }) => {
                           if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                             return (
@@ -154,7 +217,12 @@ export default function Dashboard() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="primary w-full bg-teal-400 text-white">Score</Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full bg-teal-400 text-white">Score</Button>
+                </DialogTrigger>
+                {credential.dialog && credential.dialog(crAddress, setCrAddress)}
+              </Dialog>
             </CardFooter>
           </Card>
         ))}

@@ -1,5 +1,5 @@
 import { discount, robot } from '@/assets';
-import GetStarted from '@/app/components/GetStarted';
+import GetStarted from '@/components/home/GetStarted';
 import Image from 'next/image';
 
 const Hero = () => {
