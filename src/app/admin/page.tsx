@@ -22,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const points = 75; // Example points value
 const chartData = [
@@ -118,7 +118,31 @@ export default function Dashboard() {
   ];
   const [dialogOpen, setDialogOpen] = useState(false);
   const [crAddress, setCrAddress] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [coordinates, setCoordinates] = useState(null);
+  const [places, setPlaces] = useState(null);
 
+  useEffect(() => {
+    const fetchCustomerLeads = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/googleMaps?address=${crAddress}`); 
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const data = await response.json();
+        console.log('Data:', data);
+        setCoordinates(data.coordinates);
+        setPlaces(data.placeData);
+      } catch (err) {
+        console.error("Error fetching customer leads:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCustomerLeads();
+  }, [crAddress]);
+  
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold text-teal-400 mb-6">My Score</h1>
