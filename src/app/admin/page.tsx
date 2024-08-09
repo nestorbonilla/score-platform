@@ -1,5 +1,4 @@
 'use client'
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +11,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import Image from "next/image"
+import Image, { StaticImageData } from "next/image"
 import {
   Dialog,
   DialogContent,
@@ -22,6 +21,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { useEffect, useState } from "react"
 
 const points = 75; // Example points value
@@ -39,18 +40,35 @@ const chartConfig = {
     label: "Remaining",
     color: "hsl(var(--chart-remaining))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-  
-
-const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  console.log("Form submitted");
-  // Handle form submission
+interface Credential {
+  id: string;
+  name: string;
+  points: number;
+  icon: StaticImageData;
+  description: string;
+  dialog: (() => JSX.Element) | null;
 };
 
-const googleMapsDialog = (crAddress: string, setCrAddress: React.Dispatch<React.SetStateAction<string>>) => {
-  return (
+export default function Dashboard() {
+    
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeCredential, setActiveCredential] = useState<Credential | null>(null);
+  
+  const [crAddress, setCrAddress] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [coordinates, setCoordinates] = useState(null);
+  const [places, setPlaces] = useState(null);
+  const [userAddress, setUserAddress] = useState("");
+  
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("Form submitted");
+    // Handle form submission
+  };
+  
+  const googleMapsDialog = () => (
     <DialogContent
       className="sm:max-w-[425px]"
       onInteractOutside={(e) => {
@@ -86,9 +104,47 @@ const googleMapsDialog = (crAddress: string, setCrAddress: React.Dispatch<React.
       </form>
     </DialogContent>
   );
-};
-
-export default function Dashboard() {
+  
+  const holonymDialog = () => (
+    <DialogContent>
+        <Tabs defaultValue="kyc" className="w-full pt-5">
+          <TabsList className="w-full flex justify-between">
+            <TabsTrigger value="kyc" className="flex-1 text-center">KYC</TabsTrigger>
+            <TabsTrigger value="attestation" className="flex-1 text-center">Attestation</TabsTrigger>
+          </TabsList>
+          <TabsContent value="kyc">
+            <div className="grid gap-4 py-4">
+              <div className="items-center gap-4">
+                <p className="py-5">
+                  To start the KYC process, please press the following button, follow the steps, and once completed return, and click, refresh.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <a
+                    href={`https://silksecure.net/holonym/${userAddress}/gov-id/issuance/prereqs`} 
+                    className="bg-teal-400 text-white py-2 px-4 rounded text-center inline-block"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Start KYC
+                  </a>
+                  <Button className="bg-teal-400 text-white">Refresh</Button>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="attestation">
+          <div className="grid gap-4 py-4">
+              <div className="items-center gap-4">
+                <p className="py-5">
+                  Attestation flow.
+                </p>
+                
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+    </DialogContent>
+  );
   
   const credentials = [
     {
@@ -97,7 +153,7 @@ export default function Dashboard() {
       points: 20,
       icon: crHolonym,
       description: "Validates identity from official documents, without requiring additional information.",
-      dialog: null,
+      dialog: holonymDialog,
     },
     {
       id: "google-maps",
@@ -116,14 +172,9 @@ export default function Dashboard() {
       dialog: null,
     }
   ];
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [crAddress, setCrAddress] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [coordinates, setCoordinates] = useState(null);
-  const [places, setPlaces] = useState(null);
 
   useEffect(() => {
-    const fetchCustomerLeads = async () => {
+    const fetchGoogleMapData = async () => {
       setIsLoading(true);
       try {
         const response = await fetch(`/api/googleMaps?address=${crAddress}`); 
@@ -140,7 +191,7 @@ export default function Dashboard() {
         setIsLoading(false);
       }
     };
-    fetchCustomerLeads();
+    fetchGoogleMapData();
   }, [crAddress]);
   
   return (
@@ -243,9 +294,11 @@ export default function Dashboard() {
             <CardFooter>
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="w-full bg-teal-400 text-white">Score</Button>
+                  <Button className="w-full bg-teal-400 text-white"
+                  onClick={() => setActiveCredential(credential)}
+                  >Score</Button>
                 </DialogTrigger>
-                {credential.dialog && credential.dialog(crAddress, setCrAddress)}
+                {dialogOpen && activeCredential && activeCredential.dialog && activeCredential.dialog()}
               </Dialog>
             </CardFooter>
           </Card>
