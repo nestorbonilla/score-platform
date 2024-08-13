@@ -22,6 +22,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { initSilk } from "@silk-wallet/silk-wallet-sdk"
+import {
+  Account,
+  Chain,
+  createPublicClient,
+  createWalletClient,
+  custom,
+  http,
+  parseEther,
+  WalletClient,
+} from "viem";
+import { mainnet } from "viem/chains";
+import { useAccount } from "wagmi";
 
 import { useEffect, useState } from "react"
 
@@ -60,7 +73,21 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [coordinates, setCoordinates] = useState(null);
   const [places, setPlaces] = useState(null);
+  
   const [userAddress, setUserAddress] = useState("");
+  const { address, isConnected } = useAccount();
+  
+  // useEffect(() => {
+  //   console.log("isConnected: ", isConnected);
+  //   console.log("address: ", address);
+  //   if (isConnected && address) {
+  //     setUserAddress(address);
+  //   }
+  // }, [address, isConnected]);
+  
+  useEffect(() => {
+    // hook to fetch user address
+  }, []);
   
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -186,7 +213,7 @@ export default function Dashboard() {
         setCoordinates(data.coordinates);
         setPlaces(data.placeData);
       } catch (err) {
-        console.error("Error fetching customer leads:", err);
+        console.error("Error fetching google map data:", err);
       } finally {
         setIsLoading(false);
       }
@@ -197,6 +224,8 @@ export default function Dashboard() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold text-teal-400 mb-6">My Score</h1>
+      <Label className="text-md">Connected Address: {address}</Label>
+      
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="dark:bg-slate-800 border-teal-400 border-2 lg:col-span-2">
           <CardContent className="p-6">

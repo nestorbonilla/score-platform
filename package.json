@@ -15,6 +15,8 @@
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@silk-wallet/silk-wallet-sdk": "^0.0.26",
+    "@tanstack/react-query": "^5.51.23",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.424.0",
@@ -23,7 +25,9 @@
     "react-dom": "^18",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.4.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "viem": "2.x",
+    "wagmi": "^2.12.5"
   },
   "devDependencies": {
     "@types/node": "^20",
