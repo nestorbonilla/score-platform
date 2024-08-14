@@ -200,26 +200,26 @@ export default function Dashboard() {
     }
   ];
 
-  useEffect(() => {
-    const fetchGoogleMapData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/googleMaps?address=${crAddress}`); 
-        if (!response.ok) {
-          throw new Error('Network response was not ok.');
-        }
-        const data = await response.json();
-        console.log('Data:', data);
-        setCoordinates(data.coordinates);
-        setPlaces(data.placeData);
-      } catch (err) {
-        console.error("Error fetching google map data:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchGoogleMapData();
-  }, [crAddress]);
+  // useEffect(() => {
+  //   const fetchGoogleMapData = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const response = await fetch(`/api/googleMaps?address=${crAddress}`); 
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok.');
+  //       }
+  //       const data = await response.json();
+  //       console.log('Data:', data);
+  //       setCoordinates(data.coordinates);
+  //       setPlaces(data.placeData);
+  //     } catch (err) {
+  //       console.error("Error fetching google map data:", err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchGoogleMapData();
+  // }, [crAddress]);
   
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">

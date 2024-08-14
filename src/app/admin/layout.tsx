@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { logo } from "@/assets";
 import Image from "next/image";
 import LoginSection from "@/components/admin/Login";
-import Providers from "@/app/Providers"
+import Providers from "@/components/admin/Providers";
 
 export const metadata: Metadata = {
   title: "DeCredit Score",

@@ -1,42 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { initSilk } from "@silk-wallet/silk-wallet-sdk";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   createWalletClient,
   custom,
-  WalletClient,
+  // getAccount,
 } from "viem";
 import { mainnet } from "viem/chains";
+import { useWallet } from './WalletContext';
 
 export default function LoginSection() {
-  
+  const { connected, setConnected, walletClient, setWalletClient } = useWallet();
   const [userAddress, setUserAddress] = useState("");
-  const [walletClient, setWalletClient] = useState<WalletClient | undefined>();
-  const [connected, setConnected] = useState<boolean | undefined>(undefined);
-  
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-  
-    const silk = initSilk();
-    // @ts-ignore
-    window.ethereum = silk;
-  
-    (async () => {
-      try {
-        // @ts-ignore
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts.length > 0) {
-          setConnected(true);
-        }
-      } catch (err: any) {
-        console.error(err);
-      }
-    })();
-  }, []);
-  
   
   async function login(e: any) {
     e.preventDefault();
@@ -58,19 +35,33 @@ export default function LoginSection() {
     }
   }
   
-  async function logout(e: any) {
+  async function logout(e: React.MouseEvent) {
     e.preventDefault();
     // @ts-ignore
     window.ethereum = null;
     setConnected(false);
+    setWalletClient(undefined);
     setUserAddress("");
   }
 
+  // async function signMessage() {
+  //   if (!walletClient || !userAddress) return;
+  //   const message = "gm";
+  //   const account = getAccount(userAddress);
+  //   const signedMessage = await walletClient.signMessage({
+  //     account,
+  //     message,
+  //   });
+  //   console.log("signedMessage: ", signedMessage);
+  //   alert("Signed Msg: " + signedMessage);
+  // }
+
   return (
     <div>
-      {!connected ? (
+      {userAddress}
+      {!connected && !walletClient && userAddress.length === 0 ? (
         <Button onClick={login}>
-          Login 
+          Login
         </Button>
       ) : (
         <DropdownMenu>
@@ -83,9 +74,8 @@ export default function LoginSection() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{userAddress}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuSeparator />
+            {/* <DropdownMenuItem onClick={signMessage}>Sign Message</DropdownMenuItem>
+            <DropdownMenuSeparator /> */}
             <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -93,6 +83,7 @@ export default function LoginSection() {
     </div>    
   );
 }
+
 
 function CircleUserIcon(props: any) {
   return (
