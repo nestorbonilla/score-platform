@@ -6,6 +6,8 @@ type WalletContextType = {
   setConnected: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   walletClient: WalletClient | undefined;
   setWalletClient: React.Dispatch<React.SetStateAction<WalletClient | undefined>>;
+  userAddress: string;
+  setUserAddress: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
