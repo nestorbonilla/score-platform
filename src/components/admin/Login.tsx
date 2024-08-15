@@ -12,18 +12,24 @@ import { mainnet } from "viem/chains";
 import { useWallet } from './WalletContext';
 
 export default function LoginSection() {
-  const { connected, setConnected, walletClient, setWalletClient } = useWallet();
-  const [userAddress, setUserAddress] = useState("");
+  const {
+    connected,
+    setConnected,
+    walletClient,
+    setWalletClient,
+    userAddress,
+    setUserAddress,
+  } = useWallet();
   
   async function login(e: any) {
     e.preventDefault();
     try {
       // @ts-ignore
-      await window.ethereum.login();
+      await window.silk.login();
       const newWalletClient = createWalletClient({
         chain: mainnet,
         // @ts-ignore
-        transport: custom(window.ethereum as any),
+        transport: custom(window.silk as any),
       });
       setWalletClient(newWalletClient);
       setConnected(true);
@@ -38,7 +44,7 @@ export default function LoginSection() {
   async function logout(e: React.MouseEvent) {
     e.preventDefault();
     // @ts-ignore
-    window.ethereum = null;
+    // window.silk = null;
     setConnected(false);
     setWalletClient(undefined);
     setUserAddress("");

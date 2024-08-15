@@ -18,13 +18,14 @@ type Props = {
 export default function Providers({ children }: Props) {
   const [connected, setConnected] = useState<boolean | undefined>(undefined);
   const [walletClient, setWalletClient] = useState<WalletClient | undefined>(undefined);
-  
+  const [userAddress, setUserAddress] = useState("");
+
   useEffect(() => {
     if (typeof window === "undefined") return;
   
     const silk = initSilk();
     // @ts-ignore
-    window.ethereum = silk;
+    window.silk = silk;
   
     checkConnection();
   }, []);
@@ -32,8 +33,10 @@ export default function Providers({ children }: Props) {
   const checkConnection = async () => {
     try {
       // @ts-ignore
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      const accounts = await window.silk.request({ method: 'eth_accounts' });
+      console.log('accounts', accounts)
       if (accounts.length > 0) {
+        setUserAddress(accounts[0]);
         setConnected(true);
         initializeWalletClient();
       } else {
@@ -49,13 +52,13 @@ export default function Providers({ children }: Props) {
     const newWalletClient = createWalletClient({
       chain: mainnet,
       // @ts-ignore
-      transport: custom(window.ethereum as any),
+      transport: custom(window.silk as any),
     });
     setWalletClient(newWalletClient);
   };
   
   return (
-    <WalletContext.Provider value={{ connected, setConnected, walletClient, setWalletClient }}>
+    <WalletContext.Provider value={{ connected, setConnected, walletClient, setWalletClient, userAddress, setUserAddress }}>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           {children}
