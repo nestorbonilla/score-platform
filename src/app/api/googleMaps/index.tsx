@@ -9,7 +9,7 @@ function initMap(): void {
     center: defaultLocation,
     zoom: 15,
   });
-
+  
   // input elements
   const locationInput = document.createElement("input");
   locationInput.placeholder = "Enter location";
@@ -105,11 +105,11 @@ function getPlaceDetails(placeId: string) {
         content += `<br><img src="${place.photos[0].getUrl({ maxHeight: 100 })}" alt="Place photo">`;
       }
       if (place.opening_hours && place.opening_hours.periods) {
-        content += `<br><b>Opening Hours:</b><br>`;
+        content += `<br><b>Horario:</b><br>`;
         for (const period of place.opening_hours.periods) {
           const openTime = period.open?.time || "N/A";
           const closeTime = period.close?.time || "N/A";
-          content += `Day ${period.open?.day}: ${openTime} - ${closeTime}<br>`;
+          content += `Día ${period.open?.day}: ${openTime} - ${closeTime}<br>`;
         }
       }
       infowindow.setContent(content);
