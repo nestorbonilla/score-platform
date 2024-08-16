@@ -14,7 +14,7 @@ function initMap(): void {
   const locationInput = document.createElement("input");
   locationInput.placeholder = "Enter location";
   const searchInput = document.createElement("input");
-  searchInput.placeholder = "Enter search query";
+  searchInput.placeholder = "Enter business search";
   const searchButton = document.createElement("button");
   searchButton.textContent = "Search";
 
