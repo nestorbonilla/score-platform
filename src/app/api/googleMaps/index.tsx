@@ -9,21 +9,21 @@ function initMap(): void {
     center: defaultLocation,
     zoom: 15,
   });
-  
-  // input elements
+
+  // Input elements
   const locationInput = document.createElement("input");
   locationInput.placeholder = "Enter location";
   const searchInput = document.createElement("input");
-  searchInput.placeholder = "Enter business search";
+  searchInput.placeholder = "Enter search query";
   const searchButton = document.createElement("button");
   searchButton.textContent = "Search";
 
-  // add input elements to the map
+  // Add input elements to the map
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationInput);
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchInput);
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchButton);
 
-  // add click event listener to the search button
+  // Add click event listener to the search button
   searchButton.addEventListener("click", () => {
     const location = locationInput.value;
     const query = searchInput.value;
@@ -55,7 +55,6 @@ function searchLocation(location: string, query: string): void {
           if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             for (const place of results) {
               createMarker(place);
-              getPlaceDetails(place.place_id!);
             }
           }
         }
@@ -75,12 +74,12 @@ function createMarker(place: google.maps.places.PlaceResult) {
   });
 
   google.maps.event.addListener(marker, "click", () => {
-    infowindow.setContent(place.name || "");
-    infowindow.open(map, marker);
+    // Llamar a getPlaceDetails() para obtener los detalles del lugar
+    getPlaceDetails(place.place_id!, marker);
   });
 }
 
-function getPlaceDetails(placeId: string) {
+function getPlaceDetails(placeId: string, marker: google.maps.Marker) {
   const request = {
     placeId: placeId,
     fields: [
@@ -105,21 +104,22 @@ function getPlaceDetails(placeId: string) {
         content += `<br><img src="${place.photos[0].getUrl({ maxHeight: 100 })}" alt="Place photo">`;
       }
       if (place.opening_hours && place.opening_hours.periods) {
-        content += `<br><b>Horario:</b><br>`;
+        content += `<br><b>Opening Hours:</b><br>`;
         for (const period of place.opening_hours.periods) {
           const openTime = period.open?.time || "N/A";
           const closeTime = period.close?.time || "N/A";
-          content += `Día ${period.open?.day}: ${openTime} - ${closeTime}<br>`;
+          content += `Day ${period.open?.day}: ${openTime} - ${closeTime}<br>`;
         }
       }
+
+      // Actualizar el infowindow con los detalles del lugar
       infowindow.setContent(content);
+      infowindow.open(map, marker);
     } else {
       console.error("Error getting place details:", status);
     }
   });
 }
-
-
 
 declare global {
   interface Window {
