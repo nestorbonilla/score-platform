@@ -1,48 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const address = searchParams.get('address');
-  const query = searchParams.get('query');
-
-  if (!address || !query) {
-    return NextResponse.json({ error: 'Address and query are required' }, { status: 400 });
-  }
-
+export async function GET(request: NextRequest) {
   try {
-    // Geocoding API request
-    const geocodingResponse = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
-      { method: 'GET' }
+    const { searchParams } = new URL(request.url);
+    const input = searchParams.get('input') || '';
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY; 
+
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API key is missing' }, { status: 500 });
+    }
+
+    const response = await axios.get(
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json`,
+      {
+        params: {
+          input,
+          key: apiKey,
+        },
+      }
     );
 
-    if (!geocodingResponse.ok) {
-      throw new Error('Geocoding API request failed');
-    }
-
-    const geocodingData = await geocodingResponse.json();
-    const coordinates = geocodingData.results[0]?.geometry?.location;
-
-    if (!coordinates) {
-      return NextResponse.json({ error: 'No coordinates found for the given address' }, { status: 404 });
-    }
-
-    // Places API request
-    const placesResponse = await fetch(
-      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=${coordinates.lat},${coordinates.lng}&radius=5000&key=${process.env.GOOGLE_MAPS_API_KEY}`,
-      { method: 'GET' }
-    );
-
-    if (!placesResponse.ok) {
-      throw new Error('Places API request failed');
-    }
-
-    const placesData = await placesResponse.json();
-    const placesResults = placesData.results;
-
-    return NextResponse.json({ coordinates, placesResults }, { status: 200 });
+    return NextResponse.json(response.data);
   } catch (error) {
-    console.error('Error fetching data:', error);
-    return NextResponse.json({ error: 'Error fetching data' }, { status: 500 });
+    console.error('Error fetching Google Places data:', error);
+    return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
   }
 }
