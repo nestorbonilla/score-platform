@@ -37,7 +37,7 @@ const HolonymDialog: React.FC<HolonymDialogProps> = ({ onClose }) => {
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <a
-                  href={`https://silksecure.net/holonym/${userAddress}/idgov/issuance/prereqs`} 
+                  href={`https://silksecure.net/holonym/${userAddress}/gov-id/issuance/prereqs`} 
                   className="bg-teal-400 text-white py-2 px-4 rounded text-center inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
