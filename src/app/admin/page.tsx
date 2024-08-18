@@ -1,7 +1,5 @@
-'use client'
+"use client";
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label as ChartLabel, Pie, PieChart } from "recharts"
 import { mascot, crHolonym, crMaps, crGmail } from "@/assets"
@@ -14,19 +12,13 @@ import {
 import Image, { StaticImageData } from "next/image"
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+} from "@/components/ui/dialog";
 import { useEffect, useState } from "react"
-import LocationSearch from "@/components/admin/LocationSearch"
+import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
+import HolonymDialog from "@/components/admin/HolonymDialog"
 
-const points = 75; // Example points value
+const points = 75; 
 const chartData = [
   { name: "points", value: points, fill: "hsl(var(--chart-point))" },
   { name: "remaining", value: 100 - points, fill: "hsl(var(--chart-remaining))" },
@@ -53,8 +45,7 @@ interface Credential {
 };
 
 export default function Dashboard() {
-    
-  const [dialogOpen, setDialogOpen] = useState(false);
+
   const [activeCredential, setActiveCredential] = useState<Credential | null>(null);
   
   const [crAddress, setCrAddress] = useState("");
@@ -62,9 +53,41 @@ export default function Dashboard() {
   const [coordinates, setCoordinates] = useState(null);
   const [places, setPlaces] = useState(null);
   
-  const [userAddress, setUserAddress] = useState("");
+  const [holonymDialogOpen, setHolonymDialogOpen] = useState(false);
+  const [googleMapsDialogOpen, setGoogleMapsDialogOpen] = useState(false); 
 
-  
+
+  const handleGoogleMapsAddressSelect = (address: string) => {
+    console.log("Selected Address in Dashboard:", address);
+  };
+
+  const credentials = [
+    {
+      id: "holonym",
+      name: "Holonym",
+      points: 20,
+      icon: crHolonym,
+      description: "Validates identity from official documents, without requiring additional information.",
+      dialog: null, 
+    },
+    {
+      id: "google-maps",
+      name: "Google Maps",
+      points: 15,
+      icon: crMaps,
+      description: "Validates if the business has a location, as well as ratings left by users.",
+      dialog: null,
+    },
+    {
+      id: "gmail",
+      name: "GMail",
+      points: 15,
+      icon: crGmail,
+      description: "Email validation for the business or business owner.",
+      dialog: null,
+    }
+  ];
+
   useEffect(() => {
     const fetchGoogleMapData = async () => {
       setIsLoading(true);
@@ -79,122 +102,19 @@ export default function Dashboard() {
         setPlaces(data.placeData);
       } catch (err) {
         console.error("Error fetching google map data:", err);
-        // Optionally, set an error state to display an error message to the user
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (crAddress) { // Only fetch if crAddress has a value
+    if (crAddress) { 
       fetchGoogleMapData();
     }
   }, [crAddress]);
-  
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("Form submitted");
-    // Handle form submission
-  };
-  
-  const googleMapsDialog = () => (
-    <DialogContent
-      className="sm:max-w-[425px]"
-      onInteractOutside={(e) => {
-        e.preventDefault();
-      }}
-    >
-      <form onSubmit={handleSubmit}>
-        <DialogHeader>
-          <DialogTitle>Google Maps</DialogTitle>
-          <DialogDescription>
-            Search your address
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <LocationSearch />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit">
-            Submit
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
-  );
-  
-  const holonymDialog = () => (
-    <DialogContent>
-        <Tabs defaultValue="kyc" className="w-full pt-5">
-          <TabsList className="w-full flex justify-between">
-            <TabsTrigger value="kyc" className="flex-1 text-center">KYC</TabsTrigger>
-            <TabsTrigger value="attestation" className="flex-1 text-center">Attestation</TabsTrigger>
-          </TabsList>
-          <TabsContent value="kyc">
-            <div className="grid gap-4 py-4">
-              <div className="items-center gap-4">
-                <p className="py-5">
-                  To start the KYC process, please press the following button, follow the steps, and once completed return, and click, refresh.
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <a
-                    href={`https://silksecure.net/holonym/${userAddress}/gov-id/issuance/prereqs`} 
-                    className="bg-teal-400 text-white py-2 px-4 rounded text-center inline-block"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Start KYC
-                  </a>
-                  <Button className="bg-teal-400 text-white">Refresh</Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="attestation">
-          <div className="grid gap-4 py-4">
-              <div className="items-center gap-4">
-                <p className="py-5">
-                  Attestation flow.
-                </p>
-                
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-    </DialogContent>
-  );
-  
-  const credentials = [
-    {
-      id: "holonym",
-      name: "Holonym",
-      points: 20,
-      icon: crHolonym,
-      description: "Validates identity from official documents, without requiring additional information.",
-      dialog: holonymDialog,
-    },
-    {
-      id: "google-maps",
-      name: "Google Maps",
-      points: 15,
-      icon: crMaps,
-      description: "Validates if the business has a location, as well as ratings left by users.",
-      dialog: googleMapsDialog,
-    },
-    {
-      id: "gmail",
-      name: "GMail",
-      points: 15,
-      icon: crGmail,
-      description: "Email validation for the business or business owner.",
-      dialog: null,
-    }
-  ];
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-semibold text-teal-400 mb-6">My Score</h1>      
+      <h1 className="text-3xl font-semibold text-teal-400 mb-6">My Score</h1>
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="dark:bg-slate-800 border-teal-400 border-2 lg:col-span-2">
           <CardContent className="p-6">
@@ -290,14 +210,29 @@ export default function Dashboard() {
               </div>
             </CardContent>
             <CardFooter>
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="w-full bg-teal-400 text-white"
-                  onClick={() => setActiveCredential(credential)}
-                  >Score</Button>
-                </DialogTrigger>
-                {dialogOpen && activeCredential && activeCredential.dialog && activeCredential.dialog()}
-              </Dialog>
+              {credential.id === "holonym" && (
+                <Dialog open={holonymDialogOpen} onOpenChange={setHolonymDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-teal-400 text-white"
+                    onClick={() => setActiveCredential(credential)}
+                    >Score</Button>
+                  </DialogTrigger>
+                  {holonymDialogOpen && activeCredential?.id === 'holonym' && ( 
+                    <HolonymDialog onClose={() => setHolonymDialogOpen(false)} />
+                  )}
+                  {holonymDialogOpen && activeCredential && activeCredential.dialog && activeCredential?.id !== 'holonym' && activeCredential.dialog()}
+                </Dialog>
+              )}
+              {credential.id === "google-maps" && (
+                <Dialog open={googleMapsDialogOpen} onOpenChange={setGoogleMapsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-teal-400 text-white">
+                      Score
+                    </Button>
+                  </DialogTrigger>
+                  <GoogleMapsDialog onAddressSelect={handleGoogleMapsAddressSelect} onClose={() => setGoogleMapsDialogOpen(false)} />
+                </Dialog>
+              )}
             </CardFooter>
           </Card>
         ))}

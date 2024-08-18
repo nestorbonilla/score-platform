@@ -7,8 +7,7 @@ const nextConfig = {
         hostname: 'localhost',
       },
     ],
-  },
-  dangerouslyAllowSVG: true,
+  }
 };
 
 export default nextConfig;

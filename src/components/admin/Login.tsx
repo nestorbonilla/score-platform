@@ -11,7 +11,7 @@ import {
 import { mainnet } from "viem/chains";
 import { useWallet } from './WalletContext';
 
-export default function LoginSection() {
+export default function Login() {
   const {
     connected,
     setConnected,
@@ -33,7 +33,6 @@ export default function LoginSection() {
       });
       setWalletClient(newWalletClient);
       setConnected(true);
-      // Request addresses after successful login
       const [address] = await newWalletClient.requestAddresses();
       setUserAddress(address);
     } catch (err: any) {
@@ -43,28 +42,13 @@ export default function LoginSection() {
   
   async function logout(e: React.MouseEvent) {
     e.preventDefault();
-    // @ts-ignore
-    // window.silk = null;
     setConnected(false);
     setWalletClient(undefined);
     setUserAddress("");
   }
 
-  // async function signMessage() {
-  //   if (!walletClient || !userAddress) return;
-  //   const message = "gm";
-  //   const account = getAccount(userAddress);
-  //   const signedMessage = await walletClient.signMessage({
-  //     account,
-  //     message,
-  //   });
-  //   console.log("signedMessage: ", signedMessage);
-  //   alert("Signed Msg: " + signedMessage);
-  // }
-
   return (
     <div>
-      {userAddress}
       {!connected && !walletClient && userAddress.length === 0 ? (
         <Button onClick={login}>
           Login
@@ -80,8 +64,6 @@ export default function LoginSection() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{userAddress}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {/* <DropdownMenuItem onClick={signMessage}>Sign Message</DropdownMenuItem>
-            <DropdownMenuSeparator /> */}
             <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
