@@ -1,8 +1,13 @@
 import { SchemaRegistry } from '@ethereum-attestation-service/eas-sdk';
 import { ethers } from 'ethers';
+import * as dotenv from 'dotenv'; 
+
+dotenv.config({ path: '.env.local' }); 
+
+// console.log(process.env); 
 
 // Configuration constants
-const schemaRegistryContractAddress = '0x1234567890123456789012345678901234567890';
+const schemaRegistryContractAddress = '0x4200000000000000000000000000000000000020';
 const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress);
 
 async function registerSchema() {
@@ -13,7 +18,11 @@ async function registerSchema() {
     schemaRegistry.connect(signer);
 
     // Initialize SchemaEncoder with the schema string
-    const schema = "";
+    
+    // Google Maps
+    const schema = "string name, string physicalAddress, string score, string reviewCount";
+    
+    // Holonym
     const revocable = true;
     
     const tx = await schemaRegistry.register({

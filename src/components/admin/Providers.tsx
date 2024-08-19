@@ -6,7 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from "@/lib/config";
 import WalletContext from "./WalletContext";
 import { WalletClient, createWalletClient, custom } from "viem";
-import { arbitrum } from "viem/chains";
+import { arbitrum, baseSepolia } from "viem/chains";
+import { ethers, JsonRpcSigner } from "ethers";
 
 const queryClient = new QueryClient();
 
@@ -18,14 +19,27 @@ export default function Providers({ children }: Props) {
   const [connected, setConnected] = useState<boolean | undefined>(undefined);
   const [walletClient, setWalletClient] = useState<WalletClient | undefined>(undefined);
   const [userAddress, setUserAddress] = useState("");
-  const [currentNetwork, setCurrentNetwork] = useState("arbitrum");
+  const [currentNetwork, setCurrentNetwork] = useState("baseSepolia");
+  const [signer, setSigner] = useState<JsonRpcSigner | undefined>(undefined);
 
+  const viemChainToEthersNetwork = (chain: any) => {
+    return {
+      chainId: chain.id,
+      name: chain.name,
+      ensAddress: chain.contracts?.ensRegistry?.address
+    };
+  };
+  
   const initializeWalletClient = useCallback(() => {
+    console.log("Initializing wallet client...");
     let network = null;
     switch (currentNetwork) {
       case "arbitrum":
         network = arbitrum;
         break;
+        case "baseSepolia":
+          network = baseSepolia;
+          break;
       default:
         network = arbitrum;
         break;
@@ -35,7 +49,18 @@ export default function Providers({ children }: Props) {
       // @ts-ignore
       transport: custom(window.silk as any),
     });
-    setWalletClient(newWalletClient);
+    const ethersNetwork = viemChainToEthersNetwork(network);
+    const provider = new ethers.BrowserProvider(newWalletClient.transport, ethersNetwork);   
+    provider.getSigner(newWalletClient.account)
+    .then(newSigner => {
+      console.log("Got signer:", newSigner);
+      setSigner(newSigner);
+    })
+    .catch(error => {
+      console.error("Error getting signer:", error);
+    });
+    setSigner(signer);
+    
   }, [currentNetwork]);
   
   useEffect(() => {
@@ -65,7 +90,7 @@ export default function Providers({ children }: Props) {
   }, [initializeWalletClient]);
   
   return (
-    <WalletContext.Provider value={{ connected, setConnected, walletClient, setWalletClient, userAddress, setUserAddress, currentNetwork, setCurrentNetwork, initializeWalletClient }}>
+    <WalletContext.Provider value={{ connected, setConnected, walletClient, setWalletClient, userAddress, setUserAddress, currentNetwork, setCurrentNetwork, initializeWalletClient, signer }}>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           {children}

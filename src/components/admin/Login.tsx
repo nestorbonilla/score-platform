@@ -1,14 +1,11 @@
 "use client";
-
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   createWalletClient,
-  custom,
-  // getAccount,
+  custom
 } from "viem";
-import { mainnet } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 import { useWallet } from './WalletContext';
 
 export default function Login() {
@@ -26,8 +23,9 @@ export default function Login() {
     try {
       // @ts-ignore
       await window.silk.login();
+      // await window.silk.loginSelector('injected');
       const newWalletClient = createWalletClient({
-        chain: mainnet,
+        chain: baseSepolia,
         // @ts-ignore
         transport: custom(window.silk as any),
       });

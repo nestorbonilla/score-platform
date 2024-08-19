@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import LocationSearch from "@/components/admin/LocationSearch";
+import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
+import { useWallet } from "./WalletContext";
 
 interface GoogleMapsDialogProps {
     onAddressSelect: (address: string) => void;
@@ -14,11 +16,40 @@ interface GoogleMapsDialogProps {
 const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, onClose }) => {
     const [selectedAddress, setSelectedAddress] = useState<string>("");
     const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
+    const {
+        userAddress,
+        signer,
+      } = useWallet();
+    
+    const EAS_CONTRACT_ADDRESS = "0x4200000000000000000000000000000000000021";    
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (isAddressConfirmed) {
             onAddressSelect(selectedAddress);
+            
+            const eas = new EAS(EAS_CONTRACT_ADDRESS);
+            eas.connect(signer!);
+            const schemaEncoder = new SchemaEncoder("string name, string physicalAddress, string score, string reviewCount");
+            const schemaUID = '0x390dae27a016f85da388c35e37a5ecba47ee2078ebff75ef36450d39e2d17409';
+            // edit data
+            const encodedData = schemaEncoder.encodeData([
+                { name: 'name', value: "something", type: 'string' },
+                { name: 'physicalAddress', value: "new address", type: 'string' },
+                { name: 'score', value: "3.4", type: 'string' },
+                { name: 'reviewCount', value: "5", type: 'string' }
+            ]);
+            const transaction = await eas.attest({
+                schema: schemaUID,
+                data: {
+                  recipient: userAddress,
+                  expirationTime: BigInt(0),
+                  revocable: true,
+                  data: encodedData
+                }
+              });
+            const newAttestationUID = await transaction.wait();
+            console.log('New attestation UID:', newAttestationUID);
             onClose();
         }
         // You might want to add some error handling or feedback here if the address is not confirmed
@@ -26,7 +57,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
     
     const handleCheckboxChange = (checked: boolean) => {
       setIsAddressConfirmed(checked === true);
-  };
+    };
 
     return (
         <DialogContent

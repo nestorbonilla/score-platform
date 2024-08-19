@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from "react";
 import { WalletClient } from "viem";
+import { JsonRpcSigner } from "ethers";
 
 type WalletContextType = {
   connected: boolean | undefined;
@@ -11,6 +12,7 @@ type WalletContextType = {
   currentNetwork: string;
   setCurrentNetwork: React.Dispatch<React.SetStateAction<string>>;
   initializeWalletClient: () => void;
+  signer: JsonRpcSigner | undefined;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
