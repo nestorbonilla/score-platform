@@ -21,62 +21,55 @@ export default function Providers({ children }: Props) {
   const [userAddress, setUserAddress] = useState("");
   const [currentNetwork, setCurrentNetwork] = useState("baseSepolia");
   const [signer, setSigner] = useState<JsonRpcSigner | undefined>(undefined);
+  const [initializing, setInitializing] = useState(false);
 
-  const viemChainToEthersNetwork = (chain: any) => {
-    return {
-      chainId: chain.id,
-      name: chain.name,
-      ensAddress: chain.contracts?.ensRegistry?.address
-    };
-  };
-  
-  const initializeWalletClient = useCallback(() => {
-    console.log("Initializing wallet client...");
-    let network = null;
-    switch (currentNetwork) {
-      case "arbitrum":
-        network = arbitrum;
-        break;
-        case "baseSepolia":
-          network = baseSepolia;
-          break;
-      default:
-        network = arbitrum;
-        break;
-    }
-    const newWalletClient = createWalletClient({
-      chain: network,
-      // @ts-ignore
-      transport: custom(window.silk as any),
-    });
-    const ethersNetwork = viemChainToEthersNetwork(network);
-    const provider = new ethers.BrowserProvider(newWalletClient.transport, ethersNetwork);   
-    provider.getSigner(newWalletClient.account)
-    .then(newSigner => {
+  const viemChainToEthersNetwork = (chain: any) => ({
+    chainId: chain.id,
+    name: chain.name,
+    ensAddress: chain.contracts?.ensRegistry?.address
+  });
+
+  const initializeWalletClient = useCallback(async () => {
+    if (initializing || walletClient) return;
+    setInitializing(true);
+
+    try {
+      const network = currentNetwork === "arbitrum" ? arbitrum : baseSepolia;
+      const newWalletClient = createWalletClient({
+        chain: network,
+        // @ts-ignore
+        transport: custom(window.silk as any),
+      });
+
+      setWalletClient(newWalletClient);
+
+      const ethersNetwork = viemChainToEthersNetwork(network);
+      const provider = new ethers.BrowserProvider(newWalletClient.transport, ethersNetwork);
+
+      const newSigner = await provider.getSigner(newWalletClient.account);
       console.log("Got signer:", newSigner);
       setSigner(newSigner);
-    })
-    .catch(error => {
-      console.error("Error getting signer:", error);
-    });
-    setSigner(signer);
-    
-  }, [currentNetwork]);
-  
+      setConnected(true);
+    } catch (error) {
+      console.error("Error initializing wallet client:", error);
+    } finally {
+      setInitializing(false);
+    }
+  }, [currentNetwork, initializing, walletClient]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-  
+
     const silk = initSilk();
     // @ts-ignore
     window.silk = silk;
-  
+
     const checkConnection = async () => {
       try {
         // @ts-ignore
         const accounts = await window.silk.request({ method: 'eth_accounts' });
         if (accounts.length > 0) {
           setUserAddress(accounts[0]);
-          setConnected(true);
           initializeWalletClient();
         } else {
           setConnected(false);
@@ -86,11 +79,12 @@ export default function Providers({ children }: Props) {
         setConnected(false);
       }
     };
+
     checkConnection();
   }, [initializeWalletClient]);
-  
+
   return (
-    <WalletContext.Provider value={{ connected, setConnected, walletClient, setWalletClient, userAddress, setUserAddress, currentNetwork, setCurrentNetwork, initializeWalletClient, signer }}>
+    <WalletContext.Provider value={{ connected, setConnected, walletClient, setWalletClient, userAddress, setUserAddress, currentNetwork, setCurrentNetwork, initializeWalletClient, signer, setSigner }}>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           {children}

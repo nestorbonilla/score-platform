@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import LocationSearch from "@/components/admin/LocationSearch";
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { useWallet } from "./WalletContext";
+import { ethers } from "ethers";
 
 interface GoogleMapsDialogProps {
     onAddressSelect: (address: string) => void;
@@ -39,6 +40,11 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
                 { name: 'score', value: "3.4", type: 'string' },
                 { name: 'reviewCount', value: "5", type: 'string' }
             ]);
+            const overrides = {
+                gasLimit: ethers.parseUnits('200000', 'wei'), // Adjusted based on your contract's complexity
+                gasPrice: ethers.parseUnits('50', 'gwei'), // Increased slightly for faster processing
+            };
+      
             const transaction = await eas.attest({
                 schema: schemaUID,
                 data: {
@@ -47,7 +53,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
                   revocable: true,
                   data: encodedData
                 }
-              });
+              }, overrides);
             const newAttestationUID = await transaction.wait();
             console.log('New attestation UID:', newAttestationUID);
             onClose();

@@ -11,8 +11,9 @@ type WalletContextType = {
   setUserAddress: React.Dispatch<React.SetStateAction<string>>;
   currentNetwork: string;
   setCurrentNetwork: React.Dispatch<React.SetStateAction<string>>;
-  initializeWalletClient: () => void;
+  initializeWalletClient: () => Promise<void>;
   signer: JsonRpcSigner | undefined;
+  setSigner: React.Dispatch<React.SetStateAction<JsonRpcSigner | undefined>>;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);

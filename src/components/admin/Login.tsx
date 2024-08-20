@@ -1,53 +1,35 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import {
-  createWalletClient,
-  custom
-} from "viem";
-import { baseSepolia } from "viem/chains";
 import { useWallet } from './WalletContext';
 
 export default function Login() {
   const {
     connected,
     setConnected,
-    walletClient,
-    setWalletClient,
     userAddress,
-    setUserAddress,
+    initializeWalletClient, 
   } = useWallet();
-  
+
   async function login(e: any) {
     e.preventDefault();
     try {
       // @ts-ignore
       await window.silk.login();
-      // await window.silk.loginSelector('injected');
-      const newWalletClient = createWalletClient({
-        chain: baseSepolia,
-        // @ts-ignore
-        transport: custom(window.silk as any),
-      });
-      setWalletClient(newWalletClient);
-      setConnected(true);
-      const [address] = await newWalletClient.requestAddresses();
-      setUserAddress(address);
+      await initializeWalletClient();
     } catch (err: any) {
       console.error(err);
     }
   }
-  
+
   async function logout(e: React.MouseEvent) {
     e.preventDefault();
     setConnected(false);
-    setWalletClient(undefined);
-    setUserAddress("");
   }
 
   return (
     <div>
-      {!connected && !walletClient && userAddress.length === 0 ? (
+      {!connected ? (
         <Button onClick={login}>
           Login
         </Button>
@@ -66,10 +48,9 @@ export default function Login() {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-    </div>    
+    </div>
   );
 }
-
 
 function CircleUserIcon(props: any) {
   return (
