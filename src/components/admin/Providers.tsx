@@ -34,7 +34,19 @@ export default function Providers({ children }: Props) {
     setInitializing(true);
 
     try {
+      
       const network = currentNetwork === "arbitrum" ? arbitrum : baseSepolia;
+      // console.log("Switching to network:", network.id.toString());
+      // // @ts-ignore
+      // await window.silk.request({
+      //   method: 'wallet_switchEthereumChain',
+      //   params: [
+      //     {
+      //       chainId: network.id.toString(),
+      //     },
+      //   ],
+      // });
+      
       const newWalletClient = createWalletClient({
         chain: network,
         // @ts-ignore

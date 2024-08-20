@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useWallet } from './WalletContext';
+import { useConnect } from "wagmi";
 
 export default function Login() {
   const {
@@ -10,12 +11,30 @@ export default function Login() {
     userAddress,
     initializeWalletClient, 
   } = useWallet();
+  const { connect, connectors, data: connectData } = useConnect();
 
   async function login(e: any) {
     e.preventDefault();
     try {
       // @ts-ignore
       await window.silk.login();
+      // @ts-ignore
+      // window.silk.loginSelector(window.silk)
+      // .then((result: any) => {
+      //   if (result === "silk") {
+      //     // @ts-ignore
+      //     window.ethereum = window.silk;
+      //   } else if (result === 'injected') {
+      //     connect({
+      //     connector: connectors.filter((conn) => conn.id === 'injected')[0],
+      //     })
+      //   } else if (result === 'walletconnect') {
+      //     connect({
+      //     connector: connectors.filter((conn) => conn.id === 'walletConnect')[0],
+      //     })
+      //   }
+      // })
+      // .catch((err: any) => console.error(err));
       await initializeWalletClient();
     } catch (err: any) {
       console.error(err);
