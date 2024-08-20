@@ -19,7 +19,7 @@ export default function Providers({ children }: Props) {
   const [connected, setConnected] = useState<boolean | undefined>(undefined);
   const [walletClient, setWalletClient] = useState<WalletClient | undefined>(undefined);
   const [userAddress, setUserAddress] = useState("");
-  const [currentNetwork, setCurrentNetwork] = useState("baseSepolia");
+  const [currentNetwork, setCurrentNetwork] = useState("arbitrum");
   const [signer, setSigner] = useState<JsonRpcSigner | undefined>(undefined);
   const [initializing, setInitializing] = useState(false);
 
@@ -34,19 +34,26 @@ export default function Providers({ children }: Props) {
     setInitializing(true);
 
     try {
-      
       const network = currentNetwork === "arbitrum" ? arbitrum : baseSepolia;
-      // console.log("Switching to network:", network.id.toString());
-      // // @ts-ignore
-      // await window.silk.request({
-      //   method: 'wallet_switchEthereumChain',
-      //   params: [
-      //     {
-      //       chainId: network.id.toString(),
-      //     },
-      //   ],
-      // });
-      
+
+      // Attempt to switch the network if necessary
+      // @ts-ignore
+      if (window.silk?.network?.chainId !== network.id) {
+        try {
+          // @ts-ignore
+          await window.silk.request({
+            method: 'wallet_switchEthereumChain',
+            params: [
+              {
+                chainId: network.id.toString(),
+              },
+            ],
+          });
+        } catch (switchError) {
+          console.error("Error switching network:", switchError);
+        }
+      }
+
       const newWalletClient = createWalletClient({
         chain: network,
         // @ts-ignore
@@ -72,11 +79,11 @@ export default function Providers({ children }: Props) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const silk = initSilk();
-    // @ts-ignore
-    window.silk = silk;
+    const initializeSilkAndCheckConnection = async () => {
+      const silk = initSilk();
+      // @ts-ignore
+      window.silk = silk;
 
-    const checkConnection = async () => {
       try {
         // @ts-ignore
         const accounts = await window.silk.request({ method: 'eth_accounts' });
@@ -92,7 +99,8 @@ export default function Providers({ children }: Props) {
       }
     };
 
-    checkConnection();
+    initializeSilkAndCheckConnection();
+
   }, [initializeWalletClient]);
 
   return (
