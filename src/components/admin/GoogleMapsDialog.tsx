@@ -22,7 +22,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
         signer,
       } = useWallet();
     
-    const EAS_CONTRACT_ADDRESS = "0x4200000000000000000000000000000000000021";    
+    const EAS_CONTRACT_ADDRESS = "0x4200000000000000000000000000000000000021";
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -58,7 +58,6 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
             console.log('New attestation UID:', newAttestationUID);
             onClose();
         }
-        // You might want to add some error handling or feedback here if the address is not confirmed
     };
     
     const handleCheckboxChange = (checked: boolean) => {
