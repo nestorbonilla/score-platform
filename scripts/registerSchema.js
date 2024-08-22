@@ -7,13 +7,18 @@ dotenv.config({ path: '.env.local' });
 // console.log(process.env); 
 
 // Configuration constants
-const schemaRegistryContractAddress = '0x4200000000000000000000000000000000000020';
+// ARBITRUM
+// const schemaRegistryContractAddress = '0x4200000000000000000000000000000000000020';
+
+// ETHEREUM SEPOLIA SCHEMA REGISTRY
+const schemaRegistryContractAddress = '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0';
+
 const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress);
 
 async function registerSchema() {
   try {
     // Initialize the provider and signer
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT);
+    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_ENDPOINT);
     const signer = new ethers.Wallet(process.env.EAS_PRIVATE_KEY, provider);
     schemaRegistry.connect(signer);
 

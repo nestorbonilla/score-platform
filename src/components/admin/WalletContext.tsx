@@ -6,7 +6,7 @@ type WalletContextType = {
   magic: Magic | undefined;
   magicMetadata: MagicUserMetadata | undefined;
   smartAccount: SafeAccount | undefined;
-  fetchAccounts: () => Promise<void>; // Agregamos la función al contexto
+  fetchAccounts: () => Promise<void>;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);

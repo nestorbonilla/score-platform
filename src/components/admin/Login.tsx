@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function Login() {
-  const { magic, magicMetadata, smartAccount } = useWallet();
+  const { magic, magicMetadata, smartAccount, fetchAccounts } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -26,11 +26,17 @@ export default function Login() {
 
   async function logout(e: React.MouseEvent) {
     e.preventDefault();
+    const isLoggedOut = await magic!.user.logout();
+    if (isLoggedOut) {
+      // setMagicMetadata(undefined);
+      // setSmartAccount(undefined);
+    }
   }
 
   const handleEmailSubmit = async () => {
     console.log("Entered email:", email);
-    await magic!.auth.loginWithMagicLink({ email });
+    const didToken = await magic!.auth.loginWithMagicLink({ email});
+    didToken && fetchAccounts();
     setIsOpen(false);
   }
 
