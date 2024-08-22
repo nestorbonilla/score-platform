@@ -10,6 +10,7 @@ import { useWallet } from "./WalletContext";
 import { ethers } from "ethers";
 import { SafeAccountV0_2_0 as SafeAccount, MetaTransaction } from "abstractionkit";
 import { sepolia, arbitrum } from "viem/chains";
+import { createWalletClient, custom } from "viem";
 
 interface GoogleMapsDialogProps {
     onAddressSelect: (address: string) => void;
@@ -21,6 +22,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
     const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
     const {
         smartAccount,
+        magic
       } = useWallet();
     
     // const EAS_CONTRACT_ADDRESS = "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458"; // arbitrum one
@@ -62,6 +64,13 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
                 validAfter: BigInt(0),
                 entryPoint: smartAccount!.entrypointAddress,
             };
+            
+            const magicSmartAccountOwner = createWalletClient({
+                transport: custom(magic!.rpcProvider),
+            });
+            const signature = await magicSmartAccountOwner.signTypedData(domain, types, safeUserOperation);
+            const formatedSig = SafeAccount.formatEip712SignaturesToUseroperationSignature([smartAccount?.accountAddress!], [signature]);
+            userOperation.signature = formatedSig;
             
             // const ownerPrivateKey = process.env.PRIVATE_KEY as string;
             // const signer = new Wallet(ownerPrivateKey);
