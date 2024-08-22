@@ -4,7 +4,7 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { logo } from "@/assets";
 import Image from "next/image";
-import LoginSection from "@/components/admin/Login";
+import Login from "@/components/admin/Login";
 
 const Navbar: FC = () => {
     return (
@@ -33,7 +33,7 @@ const Navbar: FC = () => {
                 <form className="ml-auto flex-1 sm:flex-initial">
                     <div className="relative"></div>
                 </form>
-                <LoginSection />
+                <Login />
             </div>
         </header>
     );

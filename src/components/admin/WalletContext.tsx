@@ -1,19 +1,12 @@
-import React, { createContext, useContext } from "react";
-import { WalletClient } from "viem";
-import { JsonRpcSigner } from "ethers";
+import { createContext, useContext } from "react";
+import { Magic, MagicUserMetadata } from "magic-sdk";
+import { SafeAccountV0_2_0 as SafeAccount } from "abstractionkit";
 
 type WalletContextType = {
-  connected: boolean | undefined;
-  setConnected: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  walletClient: WalletClient | undefined;
-  setWalletClient: React.Dispatch<React.SetStateAction<WalletClient | undefined>>;
-  userAddress: string;
-  setUserAddress: React.Dispatch<React.SetStateAction<string>>;
-  currentNetwork: string;
-  setCurrentNetwork: React.Dispatch<React.SetStateAction<string>>;
-  initializeWalletClient: () => Promise<void>;
-  signer: JsonRpcSigner | undefined;
-  setSigner: React.Dispatch<React.SetStateAction<JsonRpcSigner | undefined>>;
+  magic: Magic | undefined;
+  magicMetadata: MagicUserMetadata | undefined;
+  smartAccount: SafeAccount | undefined;
+  fetchAccounts: () => Promise<void>; // Agregamos la función al contexto
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);

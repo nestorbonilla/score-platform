@@ -1,57 +1,60 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { useWallet } from './WalletContext';
-import { useConnect } from "wagmi";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { useWallet } from "./WalletContext";
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function Login() {
-  const {
-    connected,
-    setConnected,
-    userAddress,
-    initializeWalletClient, 
-  } = useWallet();
-  const { connect, connectors, data: connectData } = useConnect();
+  const { magic, magicMetadata, smartAccount } = useWallet();
+  const [isOpen, setIsOpen] = useState(false);
+  const [email, setEmail] = useState('');
 
   async function login(e: any) {
     e.preventDefault();
-    try {
-      // @ts-ignore
-      await window.silk.login();
-      // @ts-ignore
-      // window.silk.loginSelector(window.silk)
-      // .then((result: any) => {
-      //   if (result === "silk") {
-      //     // @ts-ignore
-      //     window.ethereum = window.silk;
-      //   } else if (result === 'injected') {
-      //     connect({
-      //     connector: connectors.filter((conn) => conn.id === 'injected')[0],
-      //     })
-      //   } else if (result === 'walletconnect') {
-      //     connect({
-      //     connector: connectors.filter((conn) => conn.id === 'walletConnect')[0],
-      //     })
-      //   }
-      // })
-      // .catch((err: any) => console.error(err));
-      await initializeWalletClient();
-    } catch (err: any) {
-      console.error(err);
-    }
+    setIsOpen(true);
   }
 
   async function logout(e: React.MouseEvent) {
     e.preventDefault();
-    setConnected(false);
+  }
+
+  const handleEmailSubmit = async () => {
+    console.log("Entered email:", email);
+    await magic!.auth.loginWithMagicLink({ email });
+    setIsOpen(false);
   }
 
   return (
     <div>
-      {!connected ? (
-        <Button onClick={login}>
-          Login
-        </Button>
+      {!magicMetadata && !smartAccount ? (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={login}>
+              Login
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Login</DialogTitle>
+            </DialogHeader>
+            <Input 
+              placeholder="Enter your email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+            />
+            <Button onClick={handleEmailSubmit}>Submit</Button>
+          </DialogContent>
+        </Dialog>
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -61,7 +64,11 @@ export default function Login() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{userAddress}</DropdownMenuLabel>
+            <DropdownMenuLabel>{magicMetadata?.email}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>{magicMetadata?.publicAddress}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>{smartAccount?.accountAddress}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
