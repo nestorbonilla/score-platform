@@ -51,8 +51,9 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
 
             const domain = {
                 chainId: sepolia.id,
-                verifyingContract: smartAccount!.safe4337ModuleAddress,
+                verifyingContract: smartAccount!.safe4337ModuleAddress as `0x${string}`,
             };
+            
             const types = SafeAccount.EIP712_SAFE_OPERATION_TYPE;
             
             const { sender, ...userOp } = userOperation;
@@ -68,16 +69,17 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
             const magicSmartAccountOwner = createWalletClient({
                 transport: custom(magic!.rpcProvider),
             });
-            const signature = await magicSmartAccountOwner.signTypedData(domain, types, safeUserOperation);
+            const signature = await magicSmartAccountOwner.signTypedData({
+                domain,
+                types,
+                primaryType: 'SafeOp',
+                message: safeUserOperation,
+                account: smartAccount?.accountAddress! as `0x${string}`
+            });
             const formatedSig = SafeAccount.formatEip712SignaturesToUseroperationSignature([smartAccount?.accountAddress!], [signature]);
             userOperation.signature = formatedSig;
+            onClose();
             
-            // const ownerPrivateKey = process.env.PRIVATE_KEY as string;
-            // const signer = new Wallet(ownerPrivateKey);
-            // const signature = await signer.signTypedData(domain, types, safeUserOperation);
-            // const formatedSig = SafeAccount.formatEip712SignaturesToUseroperationSignature([ownerPublicAddress], [signature]);
-            // userOperation.signature = formatedSig;
-
             // flow on eas documenation
             // const eas = new EAS(EAS_CONTRACT_ADDRESS);
             // eas.connect(signer!);
@@ -106,7 +108,6 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onAddressSelect, on
             //   }, overrides);
             // const newAttestationUID = await transaction.wait();
             // console.log('New attestation UID:', newAttestationUID);
-            onClose();
         }
     };
     
