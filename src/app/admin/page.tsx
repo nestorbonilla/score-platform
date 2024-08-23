@@ -17,6 +17,7 @@ import {
 import { useEffect, useState } from "react"
 import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
 import HolonymDialog from "@/components/admin/HolonymDialog"
+import SmsDialog from "@/components/admin/SmsDialog"
 
 const points = 75; 
 const chartData = [
@@ -41,21 +42,13 @@ interface Credential {
   points: number;
   icon: StaticImageData;
   description: string;
-  dialog: (() => JSX.Element) | null;
 };
 
 export default function Dashboard() {
 
-  const [activeCredential, setActiveCredential] = useState<Credential | null>(null);
-  
-  const [crAddress, setCrAddress] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [coordinates, setCoordinates] = useState(null);
-  const [places, setPlaces] = useState(null);
-  
   const [holonymDialogOpen, setHolonymDialogOpen] = useState(false);
   const [googleMapsDialogOpen, setGoogleMapsDialogOpen] = useState(false); 
-
+  const [smsDialogOpen, setSmsDialogOpen] = useState(false); 
 
   const handleGoogleMapsAddressSelect = (address: string) => {
     console.log("Selected Address in Dashboard:", address);
@@ -68,49 +61,22 @@ export default function Dashboard() {
       points: 20,
       icon: crHolonym,
       description: "Validates identity from official documents, without requiring additional information.",
-      dialog: null, 
     },
     {
       id: "google-maps",
       name: "Google Maps",
       points: 15,
       icon: crMaps,
-      description: "Validates if the business has a location, as well as ratings left by users.",
-      dialog: null,
+      description: "Validates if the business has a location, as well as ratings left by users."
     },
     {
-      id: "gmail",
-      name: "GMail",
+      id: "sms",
+      name: "Phone Number",
       points: 15,
       icon: crGmail,
-      description: "Email validation for the business or business owner.",
-      dialog: null,
+      description: "SMS validation for the business or business owner."
     }
   ];
-
-  useEffect(() => {
-    const fetchGoogleMapData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/googleMaps?address=${crAddress}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok.');
-        }
-        const data = await response.json();
-        console.log('Data:', data);
-        setCoordinates(data.coordinates);
-        setPlaces(data.placeData);
-      } catch (err) {
-        console.error("Error fetching google map data:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (crAddress) { 
-      fetchGoogleMapData();
-    }
-  }, [crAddress]);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -213,14 +179,9 @@ export default function Dashboard() {
               {credential.id === "holonym" && (
                 <Dialog open={holonymDialogOpen} onOpenChange={setHolonymDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="w-full bg-teal-400 text-white"
-                    onClick={() => setActiveCredential(credential)}
-                    >Score</Button>
+                    <Button className="w-full bg-teal-400 text-white">Score</Button>
                   </DialogTrigger>
-                  {holonymDialogOpen && activeCredential?.id === 'holonym' && ( 
-                    <HolonymDialog onClose={() => setHolonymDialogOpen(false)} />
-                  )}
-                  {holonymDialogOpen && activeCredential && activeCredential.dialog && activeCredential?.id !== 'holonym' && activeCredential.dialog()}
+                  <HolonymDialog onClose={() => setHolonymDialogOpen(false)} />                  
                 </Dialog>
               )}
               {credential.id === "google-maps" && (
@@ -232,6 +193,16 @@ export default function Dashboard() {
                   </DialogTrigger>
                   <GoogleMapsDialog onAddressSelect={handleGoogleMapsAddressSelect} onClose={() => setGoogleMapsDialogOpen(false)} />
                 </Dialog>
+              )}
+              {credential.id === "sms" && (
+                <Dialog open={smsDialogOpen} onOpenChange={setSmsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-teal-400 text-white">
+                      Score
+                    </Button>
+                  </DialogTrigger>
+                  <SmsDialog onClose={() => setSmsDialogOpen(false)} />
+              </Dialog>
               )}
             </CardFooter>
           </Card>

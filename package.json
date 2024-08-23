@@ -36,6 +36,7 @@
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.2.2",
     "viem": "2.x",
     "wagmi": "^2.12.5"
   },
