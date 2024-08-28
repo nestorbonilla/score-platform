@@ -6,7 +6,7 @@ import { config } from "@/lib/config";
 import WalletContext from "./WalletContext";
 import { Magic, MagicUserMetadata } from 'magic-sdk';
 import { SafeAccountV0_2_0 as SafeAccount } from "abstractionkit";
-import { arbitrum } from "viem/chains";
+import { arbitrum, sepolia } from "viem/chains";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,7 @@ export default function Providers({ children }: Props) {
   const [magic, setMagic] = useState<Magic | undefined>(undefined);
 
   useEffect(() => {
-    setMagic(new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY!, {network: {rpcUrl: process.env.NEXT_PUBLIC_RPC_ENDPOINT!, chainId: arbitrum.id}, deferPreload: true, useStorageCache: true}));
+    setMagic(new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY!, {network: {rpcUrl: process.env.NEXT_PUBLIC_RPC_ENDPOINT!, chainId: sepolia.id}, deferPreload: true, useStorageCache: true}));
   }, []);
 
   const fetchAccounts = useCallback(async () => {

@@ -18,6 +18,7 @@ import { useEffect, useState } from "react"
 import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
 import HolonymDialog from "@/components/admin/HolonymDialog"
 import SmsDialog from "@/components/admin/SmsDialog"
+import { Icons } from "@/components/admin/icons";
 
 const points = 75; 
 const chartData = [
@@ -40,7 +41,8 @@ interface Credential {
   id: string;
   name: string;
   points: number;
-  icon: StaticImageData;
+  image: StaticImageData;
+  icon: JSX.Element;
   description: string;
 };
 
@@ -59,21 +61,24 @@ export default function Dashboard() {
       id: "holonym",
       name: "Holonym",
       points: 20,
-      icon: crHolonym,
+      image: crHolonym,
+      icon: null,
       description: "Validates identity from official documents, without requiring additional information.",
     },
     {
       id: "google-maps",
       name: "Google Maps",
       points: 15,
-      icon: crMaps,
+      image: crMaps,
+      icon: null,
       description: "Validates if the business has a location, as well as ratings left by users."
     },
     {
       id: "sms",
       name: "Phone Number",
       points: 15,
-      icon: crGmail,
+      image: null,
+      icon: <Icons.phone className="h-14 w-14"/>,
       description: "SMS validation for the business or business owner."
     }
   ];
@@ -165,7 +170,10 @@ export default function Dashboard() {
                 </CardHeader>
               </div>
               <div className="col-span-1 flex items-center justify-center">
-                <Image src={credential.icon} alt={credential.name} width={75} height={75} />
+                {credential.icon ?
+                  credential.icon : 
+                  <Image src={credential.image} alt={credential.name} width={75} height={75} />
+                }
               </div>
             </div>
             <CardContent>            
