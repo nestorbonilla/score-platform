@@ -1,29 +1,29 @@
-import Image from "next/image";
 import { Billing, Business, CardDeal, Clients, CTA, Footer, Navbar, Stats, Testimonials, Hero } from "@/components/home";
+import styles from "./style";
 export default function Home() {
   return (
     <div className="bg-primary w-full overflow-hidden">
-    <div className={'sm:px-16 px-6 flex justify-center items-center'}>
-      <div className={'xl:max-w-[1280px] w-full'}>
+    <div className={`${styles.paddingX} ${styles.flexCenter}`}>
+      <div className={`${styles.boxWidth}`}>
         <Navbar />
       </div>
     </div>
 
-    <div className={`bg-primary flex justify-center items-start`}>
-      <div className={'xl:max-w-[1280px] w-full'}>
+    <div className={`bg-primary ${styles.flexStart}`}>
+      <div className={`${styles.boxWidth}`}>
         <Hero />
       </div>
     </div>
 
-    <div className={`bg-primary sm:px-16 px-6 flex justify-center items-center`}>
-      <div className={'xl:max-w-[1280px] w-full'}>
+    <div className={`bg-primary ${styles.paddingX} ${styles.flexCenter}`}>
+      <div className={`${styles.boxWidth}`}>
         <Stats />
         <Business />
         <Billing />
         <CardDeal />
         <Testimonials />
         <CTA />
-        <Clients />
+        <Clients /> 
         <Footer />
       </div>
     </div>
