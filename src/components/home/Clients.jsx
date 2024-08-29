@@ -1,22 +1,22 @@
-import { facebook, instagram, linkedin, twitter, cryptochicks, ETHvzla, mxweb3, send, shield, star, cryptoconexion } from '@/assets';
+import Arb from "./assets/arblogo.png"
 import Image from 'next/image';
 
 const clients = [
   {
     id: "client-1",
-    logo: cryptoconexion,
+    logo: Arb,
   },
   {
     id: "client-2",
-    logo: cryptochicks,
+    logo: Arb,
   },
   {
     id: "client-3",
-    logo: ETHvzla,
+    logo: Arb,
   },
   {
     id: "client-4",
-    logo: mxweb3,
+    logo: Arb,
   },
 ];
 

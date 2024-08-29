@@ -8,7 +8,7 @@ const CardDeal = () => (
       <h2 className={'font-poppins font-semibold xs:text-[48px] text-[40px] text-white xs:leading-[76.8px] leading-[66.8px] w-full'}>
         Fraud-proof <br className="sm:block hidden" /> Authentication.
       </h2>
-      <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] max-w-[470px] mt-5`}>
+      <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] max-w-[470px] mt-5 text-white`}>
         We verify personal data such as Identity, Title Deeds, Municipal Operating Licenses, Personal and Business Addresses,
         Reputation for real customers, local credit history and many other integrations.
         <br />
@@ -18,7 +18,7 @@ const CardDeal = () => (
     </div>
 
     <div className={'flex-1 flex justify-center items-center md:ml-10 ml-0 md:mt-0 mt-10 relative'}>
-      <Image src={card} alt="billing" width={100} height={100} />
+      <Image src={card} alt="billing" />
     </div>
   </section>
 );

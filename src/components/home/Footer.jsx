@@ -110,11 +110,11 @@ const Footer = () => {
           <Image
             src={logo}
             alt="hoobank"
-            width={200}
-            height={180}
-            className="object-contain"
+            width={100}
+            height={150}
+            className="sm:w-[192px] w-[100px] object-contain"
           />
-          <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] mt-4 max-w-[312px]`}>
+          <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] mt-4 max-w-[312px] text-white`}>
             A new way to verify personal data for web3 credits.
           </p>
         </div>
@@ -129,7 +129,7 @@ const Footer = () => {
                 {footerlink.links.map((link, index) => (
                   <li
                     key={link.name}
-                    className={`font-poppins font-normal text-[16px] leading-[24px] text-dimWhite hover:text-secondary cursor-pointer ${index !== footerlink.links.length - 1 ? "mb-4" : "mb-0"
+                    className={`font-poppins font-normal text-[16px] leading-[24px] text-dimWhite hover:text-secondary cursor-pointer text-white ${index !== footerlink.links.length - 1 ? "mb-4" : "mb-0"
                       }`}
                   >
                     {link.name}
@@ -154,7 +154,7 @@ const Footer = () => {
               alt={social.id}
               width={21}
               height={21}
-              className={`object-contain cursor-pointer ${index !== socialMedia.length - 1 ? "mr-6" : "mr-0"
+              className={`object-contain cursor-pointer text-white ${index !== socialMedia.length - 1 ? "mr-6" : "mr-0"
                 }`}
               onClick={() => handleClick(social.link)}
             />

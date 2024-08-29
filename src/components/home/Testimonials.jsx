@@ -38,7 +38,7 @@ const Testimonials = () => (
         The impact we want <br className="sm:block hidden" /> to have on people
       </h2>
       <div className="w-full md:mt-0 mt-6">
-        <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] text-left max-w-[450px]`}>
+        <p className={`font-poppins font-normal text-dimWhite text-[18px] leading-[30.8px] text-left max-w-[450px] text-white`}>
           Creating new forms of verification for all those who require web3 credits.
         </p>
       </div>

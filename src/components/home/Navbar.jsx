@@ -1,5 +1,4 @@
-'use client';
-
+"use client"
 import { useState } from "react";
 import { close, logo, menu } from '@/assets';
 import Image from "next/image";
@@ -26,11 +25,10 @@ const navLinks = [
 const Navbar = () => {
   const [active, setActive] = useState("Home");
   const [toggle, setToggle] = useState(false);
-  console.log("logo ", logo);
 
   return (
     <nav className="w-full flex py-6 justify-between items-center navbar">
-      <Image src={logo} alt="hoobank" width={150} height={100}/>
+      <Image src={logo} alt="hoobank"  width={100} height={150}/>
 
       <ul className="list-none sm:flex hidden justify-end items-center flex-1">
         {navLinks.map((nav, index) => (
@@ -49,9 +47,7 @@ const Navbar = () => {
         <Image
           src={toggle ? close : menu}
           alt="menu"
-          width={28}
-          height={28}
-          className="object-contain"
+          className="w-[28px] h-[28px] object-contain"
           onClick={() => setToggle(!toggle)}
         />
 
