@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label as ChartLabel, Pie, PieChart } from "recharts"
-import { mascot, crHolonym, crMaps, crGmail } from "@/assets"
+import { mascot, crHolonym, crMaps } from "@/assets"
 import {
   ChartConfig,
   ChartContainer,
@@ -14,7 +14,7 @@ import {
   Dialog,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
 import HolonymDialog from "@/components/admin/HolonymDialog"
 import SmsDialog from "@/components/admin/SmsDialog"
@@ -41,8 +41,8 @@ interface Credential {
   id: string;
   name: string;
   points: number;
-  image: StaticImageData;
-  icon: JSX.Element;
+  image: StaticImageData | null;
+  icon: JSX.Element | null;
   description: string;
 };
 
@@ -52,11 +52,7 @@ export default function Dashboard() {
   const [googleMapsDialogOpen, setGoogleMapsDialogOpen] = useState(false); 
   const [smsDialogOpen, setSmsDialogOpen] = useState(false); 
 
-  const handleGoogleMapsAddressSelect = (address: string) => {
-    console.log("Selected Address in Dashboard:", address);
-  };
-
-  const credentials = [
+  const credentials : Credential[] = [
     {
       id: "holonym",
       name: "Holonym",
@@ -172,7 +168,7 @@ export default function Dashboard() {
               <div className="col-span-1 flex items-center justify-center">
                 {credential.icon ?
                   credential.icon : 
-                  <Image src={credential.image} alt={credential.name} width={75} height={75} />
+                  <Image src={credential.image!} alt={credential.name} width={75} height={75} />
                 }
               </div>
             </div>
@@ -199,7 +195,7 @@ export default function Dashboard() {
                       Score
                     </Button>
                   </DialogTrigger>
-                  <GoogleMapsDialog onAddressSelect={handleGoogleMapsAddressSelect} onClose={() => setGoogleMapsDialogOpen(false)} />
+                  <GoogleMapsDialog onClose={() => setGoogleMapsDialogOpen(false)} />
                 </Dialog>
               )}
               {credential.id === "sms" && (

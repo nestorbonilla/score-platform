@@ -2857,7 +2857,7 @@ abort-controller@^3.0.0:
   dependencies:
     event-target-shim "^5.0.0"
 
-abstractionkit@^0.1.12:
+abstractionkit@^0.1.13:
   version "0.1.13"
   resolved "https://registry.yarnpkg.com/abstractionkit/-/abstractionkit-0.1.13.tgz#f17a64903732c2542456741718f5a24319e3e170"
   integrity sha512-JsgiPIRO5e+mVf1srDVCQkdqa+OMbgCjFhSGdzrm1YA9P1B5WeT2la4AZHQXWJ6NmgqFPJjmay+l2gFvQofV8Q==

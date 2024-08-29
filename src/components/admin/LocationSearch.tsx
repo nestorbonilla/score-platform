@@ -21,7 +21,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchGooglePlacesData } from '@/app/actions/googleMaps';
 
 interface LocationSearchProps {
-  onSelect: (address: string) => void;
+  onSelect: (data: {
+    name: string;
+    physicalAddress: string;
+    score: string;
+    reviewCount: string;
+  }) => void;
 }
 
 const LocationSearch: FunctionComponent<LocationSearchProps> = ({ onSelect }) => {
@@ -59,6 +64,15 @@ const LocationSearch: FunctionComponent<LocationSearchProps> = ({ onSelect }) =>
       }
 
       setSelectedPlaceDetails(data.result);
+      console.log("data result: ", data.result);
+      const attestationData = {
+        name: data.result.name || "",
+        physicalAddress: data.result.formatted_address || "",
+        score: data.result.rating ? data.result.rating.toString() : "0",
+        reviewCount: data.result.user_ratings_total ? data.result.user_ratings_total.toString() : "0"
+      };
+      
+      onSelect(attestationData);
     } catch (error) {
       console.error('Error fetching place details:', error);
       setSelectedPlaceDetails(null); 
@@ -70,7 +84,6 @@ const LocationSearch: FunctionComponent<LocationSearchProps> = ({ onSelect }) =>
   const handlePlaceSelect = async (selectedValue: string) => {
     setOpen(false);
     setValue(selectedValue);
-    onSelect(selectedValue);
 
     const selectedSuggestion = suggestions.find((suggestion) =>
       `${suggestion.structured_formatting.main_text} - ${suggestion.structured_formatting.secondary_text}` === selectedValue
