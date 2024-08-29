@@ -14,6 +14,7 @@ import {
 	MetaTransaction,
 	CandidePaymaster
 } from "abstractionkit";
+import { gql, useQuery } from '@apollo/client';
 
 interface GoogleMapsDialogProps {
     onClose: () => void;
@@ -24,11 +25,43 @@ interface PlaceData {
     reviewCount: string;
 }
 
+const GET_ATTESTATION = gql`
+  query Attestations($schemaId: String!, $recipient: String!) {
+    attestations(
+      where: {
+        schemaId: { equals: $schemaId },
+        recipient: { equals: $recipient }
+    }
+      take: 1
+      orderBy: { time: desc }
+    ) {
+      id
+      attester
+      recipient
+      data
+    }
+  }
+`;
+
 const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
     const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null);
     const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
     const { smartAccount, magic, magicMetadata } = useWallet();
     const [isAttesting, setIsAttesting] = useState(false);
+    
+    const { loading, error, data } = useQuery(GET_ATTESTATION, {
+        variables: { 
+            schemaId: "0x390dae27a016f85da388c35e37a5ecba47ee2078ebff75ef36450d39e2d17409",
+            recipient: smartAccount?.accountAddress
+        },
+        skip: !smartAccount?.accountAddress,
+        onCompleted: (data) => {
+            console.log('Query completed. Data:', data);
+        },
+        onError: (error) => {
+            console.error('GraphQL query error:', error);
+        }
+    });
     
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -130,6 +163,18 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
                         <div className="animate-spin rounded-full border-4 border-gray-300 border-t-gray-900 h-12 w-12" />
                         <p className="text-gray-500 dark:text-gray-400">Stamping attestation onchain...</p>
                     </div>
+                </div>
+            ) : loading ? (
+                <p>Loading existing attestation...</p>
+            ) : error ? (
+                <p>Error loading attestation: {error.message}</p>
+            ) : data?.attestations && data.attestations.length > 0 ? (
+                <div>
+                    <h2>Existing Attestation Found</h2>
+                    <p>Attester: {data.attestations[0].attester}</p>
+                    <p>Recipient: {data.attestations[0].recipient}</p>
+                    <p>Data: {data.attestations[0].data}</p>
+                    <Button onClick={onClose}>Close</Button>
                 </div>
             ) : (
                 <form onSubmit={handleSubmit}>
