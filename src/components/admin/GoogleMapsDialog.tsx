@@ -6,7 +6,7 @@ import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTit
 import { Checkbox } from "@/components/ui/checkbox";
 import LocationSearch from "@/components/admin/LocationSearch";
 import { SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
-import { useWallet } from "./WalletContext";
+import { useWallet } from "@/components/admin/WalletContext";
 import { BrowserProvider, ethers } from "ethers";
 import { sepolia, arbitrum } from "viem/chains";
 import {
@@ -66,7 +66,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
     
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setIsAttesting(true);        
+        setIsAttesting(true);
         try {
             const candideConfigResponse = await fetch('/api/candideConfig');
             const { jsonRpcNodeProvider, bundlerUrl, paymasterRPC } = await candideConfigResponse.json();    

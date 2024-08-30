@@ -25,7 +25,10 @@ async function registerSchema() {
     // Initialize SchemaEncoder with the schema string
     
     // Google Maps
-    const schema = "string score, string reviewCount";
+    // const schema = "string score, string reviewCount";
+    
+    // SMS
+    const schema = "bool phoneActive, string verificationProvider";
     
     // Holonym
     

@@ -57,8 +57,8 @@ export default function Dashboard() {
       id: "holonym",
       name: "Holonym",
       points: 20,
-      image: crHolonym,
-      icon: null,
+      image: null,
+      icon: <Icons.holonym className="h-14 w-14"/>,
       description: "Validates identity from official documents, without requiring additional information.",
     },
     {
@@ -167,7 +167,7 @@ export default function Dashboard() {
               </div>
               <div className="col-span-1 flex items-center justify-center">
                 {credential.icon ?
-                  credential.icon : 
+                  <div className="bg-white rounded-full p-2">{credential.icon}</div> : 
                   <Image src={credential.image!} alt={credential.name} width={75} height={75} />
                 }
               </div>
