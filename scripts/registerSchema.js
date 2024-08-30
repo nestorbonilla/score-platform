@@ -8,7 +8,7 @@ dotenv.config({ path: '.env.local' });
 
 // Configuration constants
 // ARBITRUM
-// const schemaRegistryContractAddress = '0x4200000000000000000000000000000000000020';
+// const schemaRegistryContractAddress = '0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB';
 
 // ETHEREUM SEPOLIA SCHEMA REGISTRY
 const schemaRegistryContractAddress = '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0';
@@ -32,13 +32,20 @@ async function registerSchema() {
     
     // Climate Resilience
     // const schema = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ORIGIN; // The origin, not the one used to attest in the platform
-    const schema = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA;
+    // const schema = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA;
     
     // Eco Tech
     // const schema = process.env.NEXT_PUBLIC_ECO_SCHEMA_ORIGIN; // The origin, not the one used to attest in the platform
     // const schema = process.env.NEXT_PUBLIC_ECO_SCHEMA;
     
-    // Holonym
+    // Address
+    // const schema = process.env.NEXT_PUBLIC_ADDRESS_SCHEMA;
+    
+    // KYC
+    // const schema = process.env.NEXT_PUBLIC_KYC_SCHEMA;
+    
+    // Main
+    // const schema = process.env.NEXT_PUBLIC_MAIN_SCHEMA;
     
     const revocable = true;
     

@@ -14,7 +14,9 @@ import {
   Dialog,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react"
+import { gql, useQuery } from '@apollo/client';
+import { getAddress } from 'viem';
+import { useEffect, useState } from 'react';
 import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
 import HolonymDialog from "@/components/admin/HolonymDialog"
 import SmsDialog from "@/components/admin/SmsDialog"
@@ -22,6 +24,15 @@ import ClimateDialog from "@/components/admin/ClimateDialog"
 import EcoDialog from "@/components/admin/EcoDialog"
 import AddressdDialog from "@/components/admin/AddressDialog"
 import { Icons } from "@/components/admin/icons";
+import { useWallet } from "@/components/admin/WalletContext";
+import { SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
+import { BrowserProvider, ethers } from "ethers";
+import { sepolia } from "viem/chains";
+import {
+	SafeAccountV0_2_0 as SafeAccount,
+	MetaTransaction,
+	CandidePaymaster
+} from "abstractionkit";
  
 interface Credential {
   id: string;
@@ -31,6 +42,29 @@ interface Credential {
   icon: JSX.Element | null;
   description: string;
 };
+
+const GET_ATTESTATIONS = gql`
+  query AttestationsForSchemas($schemaIds: [String!]!, $recipient: String!) {
+    attestations: attestations(
+      where: {
+        schemaId: { in: $schemaIds },
+        recipient: { equals: $recipient }
+      },
+      orderBy: { time: desc }
+    ) {
+      id
+      attester
+      recipient
+      refUID
+      revocable
+      revocationTime
+      expirationTime
+      data
+      schemaId
+      time
+    }
+  }
+`;
 
 export default function Dashboard() {
 
@@ -42,6 +76,10 @@ export default function Dashboard() {
   const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [scorePoints, setScorePoints] = useState(0);
   const [aprPercentage, setAprPercentage] = useState(180);
+  const { smartAccount, magic, magicMetadata } = useWallet();
+  const [decodedAttestations, setDecodedAttestations] = useState({});
+  const [enableToUpdateScore, setEnableToUpdateScore] = useState(false);
+  const [isAttesting, setIsAttesting] = useState(false);
 
   const chartData = [
     { name: "points", value: scorePoints, fill: "hsl(var(--chart-point))" },
@@ -110,12 +148,244 @@ export default function Dashboard() {
     }
   ];
   
-  useEffect(() => {
-    // get main schema score value
-    // and change score
-  }, [])
-  
+  const schemaIds = [
+    process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID,
+    process.env.NEXT_PUBLIC_SMS_SCHEMA_ID,
+    process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ID,
+    process.env.NEXT_PUBLIC_ECO_SCHEMA_ID,
+    process.env.NEXT_PUBLIC_ADDRESS_SCHEMA_ID,
+    process.env.NEXT_PUBLIC_KYC_SCHEMA_ID,
+    process.env.NEXT_PUBLIC_MAIN_SCHEMA_ID, // excluded for score calculation
+  ].filter(Boolean) as string[];
 
+  const { loading, error, data } = useQuery(GET_ATTESTATIONS, {
+    variables: { 
+      schemaIds: schemaIds,
+      recipient: smartAccount?.accountAddress ? getAddress(smartAccount.accountAddress) : ''
+    },
+    skip: !smartAccount?.accountAddress,
+  });
+
+  useEffect(() => {
+    if (data && data.attestations) {
+      // Process the results to get the first attestation for each schemaId
+      const latestAttestationsMap = data.attestations.reduce((acc: any, attestation: any) => {
+        const { schemaId } = attestation;
+        if (!acc[schemaId] || new Date(attestation.time) > new Date(acc[schemaId].time)) {
+          acc[schemaId] = attestation;
+        }
+        return acc;
+      }, {});
+
+      // Decode the data for each latest attestation
+      const decodedAttestationsMap = Object.entries(latestAttestationsMap).reduce((acc: any, [schemaId, attestation]: [string, any]) => {
+        let schemaString;
+        switch(schemaId) {
+          case process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_GMAPS_SCHEMA;
+            break;
+          case process.env.NEXT_PUBLIC_SMS_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_SMS_SCHEMA;
+            break;
+          case process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA;
+            break;
+          case process.env.NEXT_PUBLIC_ECO_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_ECO_SCHEMA;
+            break;
+          case process.env.NEXT_PUBLIC_ADDRESS_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_ADDRESS_SCHEMA;
+            break;
+          case process.env.NEXT_PUBLIC_KYC_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_KYC_SCHEMA;
+            break;
+          case process.env.NEXT_PUBLIC_MAIN_SCHEMA_ID:
+            schemaString = process.env.NEXT_PUBLIC_MAIN_SCHEMA;
+            break;
+          default:
+            console.error(`No schema string found for schemaId: ${schemaId}`);
+            return acc;
+        }
+
+        try {
+          const schemaEncoder = new SchemaEncoder(schemaString!);
+          const decodedData = schemaEncoder.decodeData(attestation.data);
+          acc[schemaId] = {
+            ...attestation,
+            decodedData: decodedData
+          };
+          if (schemaId == process.env.NEXT_PUBLIC_MAIN_SCHEMA_ID) {
+            // reference of main schema
+            // 'bool mapAttestation, string mapAttestationScore, bool smsAttestation, string smsAttestationScore, bool climateAttestation, string climateAttestationScore, bool ecoAttestation, string ecoAttestationScore, bool addressAttestation, string addressAttestationScore'
+            let mapValue = parseInt(decodedData[1].value.value.toString());
+            let smsValue = parseInt(decodedData[3].value.value.toString());
+            let climateValue = parseInt(decodedData[5].value.value.toString());
+            let ecoValue = parseInt(decodedData[7].value.value.toString());
+            let addressValue = parseInt(decodedData[9].value.value.toString());
+            let newScorePoints = mapValue + smsValue + climateValue + ecoValue + addressValue;
+            
+            setScorePoints(newScorePoints);
+            setAprPercentage(calculateAPR(newScorePoints));
+          }
+        } catch (error) {
+          console.error(`Error decoding data for schemaId ${schemaId}:`, error);
+          acc[schemaId] = attestation;
+        }
+
+        return acc;
+      }, {});
+
+      setDecodedAttestations(decodedAttestationsMap);
+      setEnableToUpdateScore(true);
+      console.log('Decoded attestations:', decodedAttestationsMap);
+    }
+  }, [data]);
+  
+  const createScoreAttestation = async () => {
+    setIsAttesting(true);
+    try {
+      // Calculate the score based on decodedAttestations
+      const credentialSchemaIds = [
+        process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID,
+        process.env.NEXT_PUBLIC_SMS_SCHEMA_ID,
+        process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ID,
+        process.env.NEXT_PUBLIC_ECO_SCHEMA_ID,
+        process.env.NEXT_PUBLIC_ADDRESS_SCHEMA_ID,
+        process.env.NEXT_PUBLIC_KYC_SCHEMA_ID,
+      ].filter(Boolean) as string[];
+  
+      let score = 0;
+      let mapAttestation = false;
+      let smsAttestation = false;
+      let climateAttestation = false;
+      let ecoAttestation = false;
+      let addressAttestation = false;
+      let kycAttestation = false;
+  
+      Object.values(decodedAttestations).forEach((attestation: any) => {
+        if (credentialSchemaIds.includes(attestation.schemaId) && attestation.decodedData) {
+          score += 10;
+          switch (attestation.schemaId) {
+            case process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID:
+              mapAttestation = true;
+              console.log(`Added 10 points for Google Maps attestation`);
+              break;
+            case process.env.NEXT_PUBLIC_SMS_SCHEMA_ID:
+              smsAttestation = true;
+              console.log(`Added 10 points for SMS attestation`);
+              break;
+            case process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ID:
+              climateAttestation = true;
+              console.log(`Added 10 points for Climate attestation`);
+              break;
+            case process.env.NEXT_PUBLIC_ECO_SCHEMA_ID:
+              ecoAttestation = true;
+              console.log(`Added 10 points for Eco attestation`);
+              break;
+            case process.env.NEXT_PUBLIC_ADDRESS_SCHEMA_ID:
+              addressAttestation = true;
+              console.log(`Added 10 points for Address attestation`);
+              break;
+            case process.env.NEXT_PUBLIC_KYC_SCHEMA_ID:
+              kycAttestation = true;
+              console.log(`Added 10 points for KYC attestation`);
+              break;
+          }
+        }
+      });
+  
+      console.log(`Total score: ${score}`);
+      
+      console.log('updated score will be ', score);
+  
+      const candideConfigResponse = await fetch('/api/candideConfig');
+      const { jsonRpcNodeProvider, bundlerUrl, paymasterRPC } = await candideConfigResponse.json();    
+      const eASContractAddress = process.env.NEXT_PUBLIC_EAS_CONTRACT_ADDRESS!;
+      const schemaEncoder = new SchemaEncoder(process.env.NEXT_PUBLIC_MAIN_SCHEMA!);
+      const schemaUID = process.env.NEXT_PUBLIC_MAIN_SCHEMA_ID;
+      
+      const encodedData = schemaEncoder.encodeData([
+        { name: 'mapAttestation', value: mapAttestation, type: 'bool' },
+        { name: 'mapAttestationScore', value: mapAttestation ? "10" : "0", type: 'string' },
+        { name: 'smsAttestation', value: smsAttestation, type: 'bool' },
+        { name: 'smsAttestationScore', value: smsAttestation ? "10" : "0", type: 'string' },
+        { name: 'climateAttestation', value: climateAttestation, type: 'bool' },
+        { name: 'climateAttestationScore', value: climateAttestation ? "10" : "0", type: 'string' },
+        { name: 'ecoAttestation', value: ecoAttestation, type: 'bool' },
+        { name: 'ecoAttestationScore', value: ecoAttestation ? "10" : "0", type: 'string' },
+        { name: 'addressAttestation', value: addressAttestation, type: 'bool' },
+        { name: 'addressAttestationScore', value: addressAttestation ? "10" : "0", type: 'string' },
+      ]);
+      
+      const easInterface = new ethers.Interface([process.env.NEXT_PUBLIC_EAS_INTERFACE!]);
+      const attestCallData = easInterface.encodeFunctionData("attest", [{
+        schema: schemaUID,
+        data: {
+          recipient: smartAccount?.accountAddress!,
+          expirationTime: BigInt(0),
+          revocable: true,
+          refUID: ethers.ZeroHash,
+          data: encodedData,
+          value: BigInt(0)
+        }
+      }]);        
+      const transaction1: MetaTransaction = {
+        to: eASContractAddress,
+        value: BigInt(0),
+        data: attestCallData,
+      };        
+      let userOperation = await smartAccount?.createUserOperation(
+        [transaction1],
+        jsonRpcNodeProvider,
+        bundlerUrl,
+      );        
+      let paymaster: CandidePaymaster = new CandidePaymaster(paymasterRPC!);
+      userOperation = await paymaster.createPaymasterUserOperation(userOperation!, bundlerUrl)        
+      const provider = new BrowserProvider(magic!.rpcProvider);
+      const ownerSigner = await provider.getSigner();
+      const domain = {
+        chainId: sepolia.id,
+        verifyingContract: smartAccount!.safe4337ModuleAddress,
+      };            
+      const types = SafeAccount.EIP712_SAFE_OPERATION_TYPE;
+      const { sender, ...userOp } = userOperation;
+      const safeUserOperation = {
+        ...userOp,
+        safe: userOperation.sender,
+        validUntil: BigInt(0),
+        validAfter: BigInt(0),
+        entryPoint: smartAccount!.entrypointAddress,
+      };
+      const signedHash = await ownerSigner.signTypedData(domain, types, safeUserOperation);            
+      userOperation.signature =
+        SafeAccount.formatEip712SignaturesToUseroperationSignature(
+          [magicMetadata?.publicAddress!],
+          [signedHash],
+        );        
+      const sendUserOperationResponse = await smartAccount?.sendUserOperation(
+        userOperation,
+        bundlerUrl,
+      );
+      if (sendUserOperationResponse && sendUserOperationResponse.userOperationHash) {
+        console.log("Score attestation created successfully");
+      }
+    } catch (error) {
+      console.error("Error during score attestation:", error);
+    } finally {
+      setIsAttesting(false);
+    }
+  };
+  
+  const calculateAPR = (score: number): number => {
+    if (score <= 10) return 180;
+    if (score <= 20) return 170;
+    if (score <= 30) return 150;
+    if (score <= 40) return 120;
+    if (score <= 50) return 90;
+    if (score <= 60) return 80;
+    return 180;
+  };
+  
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold text-teal-400 mb-6">My Score</h1>
@@ -182,6 +452,9 @@ export default function Dashboard() {
                 <p className="text-md">
                   To improve your score, we recommend you complete the credentials below.
                 </p>
+                <div className="grid grid-cols-1 gap-4 mt-4">
+                        <Button className="bg-teal-400 text-white" disabled={!enableToUpdateScore} onClick={createScoreAttestation}>Update Score</Button>
+                    </div>
               </div>
             </div>
           </CardContent>

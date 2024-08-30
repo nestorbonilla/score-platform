@@ -18,10 +18,10 @@ const HolonymDialog: React.FC<HolonymDialogProps> = ({ onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       const actionId = 123456789;
-      const resp = await fetch(`https://api.holonym.io/attestation/sbts/gov-id?action-id=${actionId}&address=${smartAccount?.accountAddress}`);
-      const { isUnique, signature, circuitId } = await resp.json();
+      // const resp = await fetch(`https://api.holonym.io/attestation/sbts/gov-id?action-id=${actionId}&address=${smartAccount?.accountAddress}`);
+      // const { isUnique, signature, circuitId } = await resp.json();
 
-      if (isUnique) {
+      // if (isUnique) {
         // const digest = ethers.solidityPackedKeccak256(
         //   ["uint256", "uint256", "address"],
         //   [getBigInt(circuitId), getBigInt(actionId), userAddress]
@@ -33,7 +33,7 @@ const HolonymDialog: React.FC<HolonymDialogProps> = ({ onClose }) => {
         // const recovered = ethers.recoverAddress(personalSignPreimage, signature);
         // setIsReadyToAttest(recovered === userAddress);
         // console.log("Ready to attest:", recovered === userAddress);
-      }
+      // }
     };
 
     fetchData();
