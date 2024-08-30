@@ -13,23 +13,18 @@ import {
 	CandidePaymaster
 } from "abstractionkit";
 import { gql, useQuery } from '@apollo/client';
+import { getAddress } from "viem";
 
 interface EcoDialogProps {
     onClose: () => void;
 }
 
-interface PlaceData {
-    score: string;
-    reviewCount: string;
-}
-
 const GET_ATTESTATION = gql`
-#   query Attestations($schemaId: String!, $recipient: String!) {
-    query Attestations($schemaId: String!) {
+  query Attestations($schemaId: String!, $recipient: String!) {
     attestations(
       where: {
         schemaId: { equals: $schemaId },
-        # recipient: { equals: $recipient }
+        recipient: { equals: $recipient }
     }
       take: 1
       orderBy: { time: desc }
@@ -43,15 +38,14 @@ const GET_ATTESTATION = gql`
 `;
 
 const EcoDialog: React.FC<EcoDialogProps> = ({ onClose }) => {
-    const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null);
-    const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
+  const [isProgramConfirmed, setIsProgramConfirmed] = useState(false);
     const { smartAccount, magic, magicMetadata } = useWallet();
     const [isAttesting, setIsAttesting] = useState(false);
     
     const { loading, error, data } = useQuery(GET_ATTESTATION, {
         variables: { 
             schemaId: process.env.NEXT_PUBLIC_ECO_SCHEMA_ID!,
-            recipient: smartAccount?.accountAddress
+            recipient: smartAccount?.accountAddress ? getAddress(smartAccount.accountAddress) : ''
         },
         skip: !smartAccount?.accountAddress,
         onCompleted: (data) => {
@@ -188,7 +182,7 @@ const EcoDialog: React.FC<EcoDialogProps> = ({ onClose }) => {
                     </div>
                     <DialogFooter>
                     <div className="grid grid-cols-1 gap-4">
-                        <Button className="bg-teal-400 text-white" type="submit" disabled={!isAddressConfirmed}>Attest</Button>
+                        <Button className="bg-teal-400 text-white" type="submit" disabled={!isProgramConfirmed}>Attest</Button>
                     </div>
                     </DialogFooter>
                 </form>

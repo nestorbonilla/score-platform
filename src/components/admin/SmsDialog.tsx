@@ -15,6 +15,7 @@ import {
 	CandidePaymaster
 } from "abstractionkit";
 import { gql, useQuery } from '@apollo/client';
+import { getAddress } from "viem";
 
 interface SmsDialogProps {
     onClose: () => void;
@@ -26,12 +27,11 @@ interface PlaceData {
 }
 
 const GET_ATTESTATION = gql`
-#   query Attestations($schemaId: String!, $recipient: String!) {
-    query Attestations($schemaId: String!) {
+  query Attestations($schemaId: String!, $recipient: String!) {
     attestations(
       where: {
         schemaId: { equals: $schemaId },
-        # recipient: { equals: $recipient }
+        recipient: { equals: $recipient }
     }
       take: 1
       orderBy: { time: desc }
@@ -54,7 +54,7 @@ const SmsDialog: React.FC<SmsDialogProps> = ({ onClose }) => {
   const { loading, error, data } = useQuery(GET_ATTESTATION, {
     variables: { 
         schemaId: process.env.NEXT_PUBLIC_SMS_SCHEMA_ID!,
-        recipient: smartAccount?.accountAddress
+        recipient: smartAccount?.accountAddress ? getAddress(smartAccount.accountAddress) : ''
     },
     skip: !smartAccount?.accountAddress,
     onCompleted: (data) => {

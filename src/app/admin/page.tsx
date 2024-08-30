@@ -19,6 +19,8 @@ import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
 import HolonymDialog from "@/components/admin/HolonymDialog"
 import SmsDialog from "@/components/admin/SmsDialog"
 import ClimateDialog from "@/components/admin/ClimateDialog"
+import EcoDialog from "@/components/admin/EcoDialog"
+import AddressdDialog from "@/components/admin/AddressDialog"
 import { Icons } from "@/components/admin/icons";
  
 interface Credential {
@@ -36,6 +38,8 @@ export default function Dashboard() {
   const [googleMapsDialogOpen, setGoogleMapsDialogOpen] = useState(false); 
   const [smsDialogOpen, setSmsDialogOpen] = useState(false);
   const [climateDialogOpen, setClimateDialogOpen] = useState(false);
+  const [ecoDialogOpen, setEcoDialogOpen] = useState(false);
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [scorePoints, setScorePoints] = useState(0);
   const [aprPercentage, setAprPercentage] = useState(180);
 
@@ -250,6 +254,26 @@ export default function Dashboard() {
                     </Button>
                   </DialogTrigger>
                   <ClimateDialog onClose={() => setClimateDialogOpen(false)} />
+              </Dialog>
+              )}
+              {credential.id === "eco-tech" && (
+                <Dialog open={ecoDialogOpen} onOpenChange={setEcoDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-teal-400 text-white">
+                      Score
+                    </Button>
+                  </DialogTrigger>
+                  <EcoDialog onClose={() => setEcoDialogOpen(false)} />
+              </Dialog>
+              )}
+              {credential.id === "address" && (
+                <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-teal-400 text-white">
+                      Score
+                    </Button>
+                  </DialogTrigger>
+                  <AddressdDialog onClose={() => setAddressDialogOpen(false)} />
               </Dialog>
               )}
             </CardFooter>
