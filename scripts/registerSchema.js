@@ -18,16 +18,17 @@ const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress);
 async function registerSchema() {
   try {
     // Initialize the provider and signer
-    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_ENDPOINT);
+    const provider = new ethers.JsonRpcProvider(process.env.ENDPOINT_RPC);
     const signer = new ethers.Wallet(process.env.EAS_PRIVATE_KEY, provider);
     schemaRegistry.connect(signer);
 
     // Initialize SchemaEncoder with the schema string
     
     // Google Maps
-    const schema = "string name, string physicalAddress, string score, string reviewCount";
+    const schema = "string score, string reviewCount";
     
     // Holonym
+    
     const revocable = true;
     
     const tx = await schemaRegistry.register({

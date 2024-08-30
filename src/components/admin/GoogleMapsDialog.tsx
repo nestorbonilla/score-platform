@@ -26,19 +26,20 @@ interface PlaceData {
 }
 
 const GET_ATTESTATION = gql`
-  query Attestations($schemaId: String!, $recipient: String!) {
+#   query Attestations($schemaId: String!, $recipient: String!) {
+    query Attestations($schemaId: String!) {
     attestations(
       where: {
         schemaId: { equals: $schemaId },
-        recipient: { equals: $recipient }
+        # recipient: { equals: $recipient }
     }
       take: 1
       orderBy: { time: desc }
     ) {
       id
       attester
-      recipient
       data
+      revocationTime
     }
   }
 `;
@@ -51,7 +52,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
     
     const { loading, error, data } = useQuery(GET_ATTESTATION, {
         variables: { 
-            schemaId: "0x390dae27a016f85da388c35e37a5ecba47ee2078ebff75ef36450d39e2d17409",
+            schemaId: process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID!,
             recipient: smartAccount?.accountAddress
         },
         skip: !smartAccount?.accountAddress,
@@ -70,20 +71,15 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
             const candideConfigResponse = await fetch('/api/candideConfig');
             const { jsonRpcNodeProvider, bundlerUrl, paymasterRPC } = await candideConfigResponse.json();    
             const eASContractAddress = process.env.NEXT_PUBLIC_EAS_CONTRACT_ADDRESS!; // Sepolia testnet address        
-            const schemaEncoder = new SchemaEncoder("string name, string physicalAddress, string score, string reviewCount");
-            const schemaUID = '0x390dae27a016f85da388c35e37a5ecba47ee2078ebff75ef36450d39e2d17409'
+            const schemaEncoder = new SchemaEncoder(process.env.NEXT_PUBLIC_GMAPS_SCHEMA!);
+            const schemaUID = process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID;
             
             const encodedData = schemaEncoder.encodeData([
-                { name: 'name', value: "test", type: 'string' },
-                { name: 'physicalAddress', value: "testAddress", type: 'string' },
                 { name: 'score', value: selectedPlace?.score!, type: 'string' },
                 { name: 'reviewCount', value: selectedPlace?.reviewCount!, type: 'string' }
             ]);
             
-            // Prepare EAS attest function call
-            const easInterface = new ethers.Interface([
-                "function attest((bytes32 schema, (address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data)) external payable returns (bytes32)",
-            ]);
+            const easInterface = new ethers.Interface([process.env.NEXT_PUBLIC_EAS_INTERFACE!]);
             const attestCallData = easInterface.encodeFunctionData("attest", [{
                 schema: schemaUID,
                 data: {
@@ -108,12 +104,12 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
             let paymaster: CandidePaymaster = new CandidePaymaster(paymasterRPC!);
             userOperation = await paymaster.createPaymasterUserOperation(userOperation!, bundlerUrl)        
             const provider = new BrowserProvider(magic!.rpcProvider);
-            const ownerSigner = await provider.getSigner();        
+            const ownerSigner = await provider.getSigner();
             const domain = {
                 chainId: sepolia.id,
                 verifyingContract: smartAccount!.safe4337ModuleAddress,
             };            
-            const types = SafeAccount.EIP712_SAFE_OPERATION_TYPE;            
+            const types = SafeAccount.EIP712_SAFE_OPERATION_TYPE;
             const { sender, ...userOp } = userOperation;
             const safeUserOperation = {
                 ...userOp,
@@ -121,7 +117,7 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
                 validUntil: BigInt(0),
                 validAfter: BigInt(0),
                 entryPoint: smartAccount!.entrypointAddress,
-            };            
+            };
             const signedHash = await ownerSigner.signTypedData(domain, types, safeUserOperation);            
             userOperation.signature =
                 SafeAccount.formatEip712SignaturesToUseroperationSignature(
@@ -168,13 +164,23 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
                 <p>Loading existing attestation...</p>
             ) : error ? (
                 <p>Error loading attestation: {error.message}</p>
-            ) : data?.attestations && data.attestations.length > 0 ? (
+            ) : data?.attestations && data.attestations.length > 0 && data.attestations[0].revocationTime == 0 ? (
                 <div>
-                    <h2>Existing Attestation Found</h2>
-                    <p>Attester: {data.attestations[0].attester}</p>
-                    <p>Recipient: {data.attestations[0].recipient}</p>
-                    <p>Data: {data.attestations[0].data}</p>
-                    <Button onClick={onClose}>Close</Button>
+                    <DialogHeader>
+                        <DialogTitle>Google Maps</DialogTitle>
+                        <DialogDescription> </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="items-center gap-4">
+                            <h2>Existing Valid Attestation Found</h2>
+                            <p>In order to revoke this attestation and submit a new, please contact support.</p>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                    <div className="grid grid-cols-1 gap-4">
+                        <Button className="bg-teal-400 text-white"  onClick={onClose}>Close</Button>
+                    </div>
+                    </DialogFooter>
                 </div>
             ) : (
                 <form onSubmit={handleSubmit}>
