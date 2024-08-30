@@ -28,7 +28,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const loggerLink = new ApolloLink((operation, forward) => {
   console.log(`GraphQL Request: ${operation.operationName}`, operation.variables);
   return forward(operation).map((result) => {
-    console.log(`GraphQL Result: ${operation.operationName}`, result);
+    // console.log(`GraphQL Result: ${operation.operationName}`, result);
     return result;
   });
 });

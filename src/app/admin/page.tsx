@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label as ChartLabel, Pie, PieChart } from "recharts"
-import { mascot, crHolonym, crMaps } from "@/assets"
+import { mascot } from "@/assets"
 import {
   ChartConfig,
   ChartContainer,
@@ -14,29 +14,13 @@ import {
   Dialog,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import GoogleMapsDialog from "@/components/admin/GoogleMapsDialog"
 import HolonymDialog from "@/components/admin/HolonymDialog"
 import SmsDialog from "@/components/admin/SmsDialog"
+import ClimateDialog from "@/components/admin/ClimateDialog"
 import { Icons } from "@/components/admin/icons";
-
-const points = 75; 
-const chartData = [
-  { name: "points", value: points, fill: "hsl(var(--chart-point))" },
-  { name: "remaining", value: 100 - points, fill: "hsl(var(--chart-remaining))" },
-]
-
-const chartConfig = {
-  points: {
-    label: "Points",
-    color: "hsl(var(--chart-point))",
-  },
-  remaining: {
-    label: "Remaining",
-    color: "hsl(var(--chart-remaining))",
-  },
-} satisfies ChartConfig;
-
+ 
 interface Credential {
   id: string;
   name: string;
@@ -50,13 +34,32 @@ export default function Dashboard() {
 
   const [holonymDialogOpen, setHolonymDialogOpen] = useState(false);
   const [googleMapsDialogOpen, setGoogleMapsDialogOpen] = useState(false); 
-  const [smsDialogOpen, setSmsDialogOpen] = useState(false); 
+  const [smsDialogOpen, setSmsDialogOpen] = useState(false);
+  const [climateDialogOpen, setClimateDialogOpen] = useState(false);
+  const [scorePoints, setScorePoints] = useState(0);
+  const [aprPercentage, setAprPercentage] = useState(180);
 
+  const chartData = [
+    { name: "points", value: scorePoints, fill: "hsl(var(--chart-point))" },
+    { name: "remaining", value: 100 - scorePoints, fill: "hsl(var(--chart-remaining))" },
+  ]
+  
+  const chartConfig = {
+    points: {
+      label: "Points",
+      color: "hsl(var(--chart-point))",
+    },
+    remaining: {
+      label: "Remaining",
+      color: "hsl(var(--chart-remaining))",
+    },
+  } satisfies ChartConfig;
+  
   const credentials : Credential[] = [
     {
       id: "holonym",
       name: "Holonym",
-      points: 20,
+      points: 10,
       image: null,
       icon: <Icons.holonym className="h-14 w-14"/>,
       description: "Validates identity from official documents, without requiring additional information.",
@@ -64,20 +67,50 @@ export default function Dashboard() {
     {
       id: "google-maps",
       name: "Google Maps",
-      points: 15,
-      image: crMaps,
-      icon: null,
+      points: 10,
+      image: null,
+      icon: <Icons.gmaps className="h-14 w-14"/>,
       description: "Validates if the business has a location, as well as ratings left by users."
+    },
+    {
+      id: "address",
+      name: "Home/Business Address",
+      points: 10,
+      image: null,
+      icon: <Icons.address className="h-14 w-14"/>,
+      description: "Verify your home or business address with an onsite oracle."
     },
     {
       id: "sms",
       name: "Phone Number",
-      points: 15,
+      points: 10,
       image: null,
       icon: <Icons.phone className="h-14 w-14"/>,
       description: "SMS validation for the business or business owner."
+    },
+    {
+      id: "climate-resilience",
+      name: "Climate Resilience",
+      points: 10,
+      image: null,
+      icon: <Icons.climateResilience className="h-14 w-14"/>,
+      description: "Climate Resilience educational program attendance."
+    },
+    {
+      id: "eco-tech",
+      name: "Eco Tech Adoption",
+      points: 10,
+      image: null,
+      icon: <Icons.ecoTech className="h-14 w-14"/>,
+      description: "Best practices adopted program attendance."
     }
   ];
+  
+  useEffect(() => {
+    // get main schema score value
+    // and change score
+  }, [])
+  
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -118,7 +151,7 @@ export default function Dashboard() {
                                   y={viewBox.cy}
                                   className="fill-foreground text-3xl font-bold"
                                 >
-                                  {points}
+                                  {scorePoints}
                                 </tspan>
                                 <tspan
                                   x={viewBox.cx}
@@ -140,6 +173,7 @@ export default function Dashboard() {
                 <p className="text-md mb-4">
                   This is your <span className="text-teal-400">Unique Credit Score</span>. 
                   It is based on a 100-point scale and validates your business and credit activity.
+                  Also, you have a {aprPercentage}% APR based on the credit score.
                 </p>
                 <p className="text-md">
                   To improve your score, we recommend you complete the credentials below.
@@ -206,6 +240,16 @@ export default function Dashboard() {
                     </Button>
                   </DialogTrigger>
                   <SmsDialog onClose={() => setSmsDialogOpen(false)} />
+              </Dialog>
+              )}
+              {credential.id === "climate-resilience" && (
+                <Dialog open={climateDialogOpen} onOpenChange={setClimateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-teal-400 text-white">
+                      Score
+                    </Button>
+                  </DialogTrigger>
+                  <ClimateDialog onClose={() => setClimateDialogOpen(false)} />
               </Dialog>
               )}
             </CardFooter>

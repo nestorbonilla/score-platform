@@ -58,10 +58,10 @@ const SmsDialog: React.FC<SmsDialogProps> = ({ onClose }) => {
     },
     skip: !smartAccount?.accountAddress,
     onCompleted: (data) => {
-        console.log('Query completed. Data:', data);
+        console.log('SMS => Query completed. Data:', data);
     },
     onError: (error) => {
-        console.error('GraphQL query error:', error);
+        console.error('SMS => GraphQL query error:', error);
     }
   });
 

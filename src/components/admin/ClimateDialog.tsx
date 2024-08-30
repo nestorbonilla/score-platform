@@ -3,8 +3,6 @@ import { useState, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import LocationSearch from "@/components/admin/LocationSearch";
 import { SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { useWallet } from "@/components/admin/WalletContext";
 import { BrowserProvider, ethers } from "ethers";
@@ -16,7 +14,7 @@ import {
 } from "abstractionkit";
 import { gql, useQuery } from '@apollo/client';
 
-interface GoogleMapsDialogProps {
+interface ClimateDialogProps {
     onClose: () => void;
 }
 
@@ -44,7 +42,7 @@ const GET_ATTESTATION = gql`
   }
 `;
 
-const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
+const ClimateDialog: React.FC<ClimateDialogProps> = ({ onClose }) => {
     const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null);
     const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
     const { smartAccount, magic, magicMetadata } = useWallet();
@@ -52,15 +50,15 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
     
     const { loading, error, data } = useQuery(GET_ATTESTATION, {
         variables: { 
-            schemaId: process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID!,
+            schemaId: process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ID!,
             recipient: smartAccount?.accountAddress
         },
         skip: !smartAccount?.accountAddress,
         onCompleted: (data) => {
-            console.log('GMaps => Query completed. Data:', data);
+            console.log('Climate => Query completed. Data:', data);
         },
         onError: (error) => {
-            console.error('GMaps => GraphQL query error:', error);
+            console.error('Climate => GraphQL query error:', error);
         }
     });
     
@@ -71,12 +69,11 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
             const candideConfigResponse = await fetch('/api/candideConfig');
             const { jsonRpcNodeProvider, bundlerUrl, paymasterRPC } = await candideConfigResponse.json();    
             const eASContractAddress = process.env.NEXT_PUBLIC_EAS_CONTRACT_ADDRESS!; // Sepolia testnet address        
-            const schemaEncoder = new SchemaEncoder(process.env.NEXT_PUBLIC_GMAPS_SCHEMA!);
-            const schemaUID = process.env.NEXT_PUBLIC_GMAPS_SCHEMA_ID;
+            const schemaEncoder = new SchemaEncoder(process.env.NEXT_PUBLIC_CLIMATE_SCHEMA!);
+            const schemaUID = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ID;
             
             const encodedData = schemaEncoder.encodeData([
-                { name: 'score', value: selectedPlace?.score!, type: 'string' },
-                { name: 'reviewCount', value: selectedPlace?.reviewCount!, type: 'string' }
+                { name: 'programReceived', value: true, type: 'bool' }
             ]);
             
             const easInterface = new ethers.Interface([process.env.NEXT_PUBLIC_EAS_INTERFACE!]);
@@ -138,14 +135,6 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
         }
     }
     
-    const handleCheckboxChange = (checked: boolean) => {
-        setIsAddressConfirmed(checked === true);
-    };
-    
-    const handlePlaceSelect = (placeData: PlaceData) => {
-        setSelectedPlace(placeData);
-    };
-
     return (
         <DialogContent
             className="sm:max-w-[425px]"
@@ -167,8 +156,8 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
             ) : data?.attestations && data.attestations.length > 0 && data.attestations[0].revocationTime == 0 ? (
                 <div>
                     <DialogHeader>
-                        <DialogTitle>Google Maps</DialogTitle>
-                        <DialogDescription> </DialogDescription>
+                      <DialogTitle>Climate Resilience</DialogTitle>
+                      <DialogDescription> </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="items-center gap-4">
@@ -185,32 +174,15 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
             ) : (
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Google Maps</DialogTitle>
-                        <DialogDescription> </DialogDescription>
+                      <DialogTitle>Climate Resilience</DialogTitle>
+                      <DialogDescription> </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="items-center gap-4">
                             <Label htmlFor="address">
-                                Search your address, and confirm the exact address to proceed to attest this information.
+                                Create an attestation confirming you have succesfully attended a Climate Resilience educational program.
+                                You will be able to do this step only if you have such validation on your account.
                             </Label>
-                        </div>
-                        <div className="items-center gap-4">
-                        <LocationSearch onSelect={handlePlaceSelect} />
-                        </div>
-                        <div className="items-center gap-4 items-top flex space-x-2">
-                        <Checkbox
-                                id="terms1"
-                                checked={isAddressConfirmed}
-                                onCheckedChange={handleCheckboxChange}
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                                <label
-                                    htmlFor="terms1"
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                    I confirm the address is correct.
-                                </label>
-                            </div>
                         </div>
                     </div>
                     <DialogFooter>
@@ -224,4 +196,4 @@ const GoogleMapsDialog: React.FC<GoogleMapsDialogProps> = ({ onClose }) => {
     );
 };
 
-export default GoogleMapsDialog;
+export default ClimateDialog;

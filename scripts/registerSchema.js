@@ -25,10 +25,18 @@ async function registerSchema() {
     // Initialize SchemaEncoder with the schema string
     
     // Google Maps
-    // const schema = "string score, string reviewCount";
+    // const schema = process.env.NEXT_PUBLIC_GMAPS_SCHEMA;
     
     // SMS
-    const schema = "bool phoneActive, string verificationProvider";
+    // const schema = process.env.NEXT_PUBLIC_SMS_SCHEMA;
+    
+    // Climate Resilience
+    // const schema = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA_ORIGIN; // The origin, not the one used to attest in the platform
+    const schema = process.env.NEXT_PUBLIC_CLIMATE_SCHEMA;
+    
+    // Eco Tech
+    // const schema = process.env.NEXT_PUBLIC_ECO_SCHEMA_ORIGIN; // The origin, not the one used to attest in the platform
+    // const schema = process.env.NEXT_PUBLIC_ECO_SCHEMA;
     
     // Holonym
     
